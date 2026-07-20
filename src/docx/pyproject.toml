@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ruyi-docx"
+version = "0.1.0"
+description = "Deterministic Word document creation, editing, rendering, and validation"
+requires-python = ">=3.12"
+dependencies = [
+    "python-docx>=1.2.0,<2.0.0",
+]
+
+[project.optional-dependencies]
+templates = [
+    "docxcompose>=2.2.0,<3.0.0",
+    "docxtpl>=0.20.2,<1.0.0",
+]
+mcp = [
+    "mcp>=1.0.0,<2.0.0",
+]
+test = [
+    "pytest>=9.0.0,<10.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
