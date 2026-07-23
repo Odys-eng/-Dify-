@@ -50,6 +50,18 @@
 | Weaviate | 向量数据库 |
 | Tavily | 联网搜索 API |
 
+**从零到跑通，你要做的 5 件事（约 30-40 分钟，大部分时间在等下载）：**
+
+| 步骤 | 做什么 | 对应章节 | 大概耗时 |
+|------|--------|---------|---------|
+| ① 装环境 | 装 Docker Desktop、Git、Python | 第 2 节 | 10 分钟 |
+| ② 申请 Key | 注册 SiliconFlow、Tavily，各拿一个 Key | 第 2 节 | 5 分钟 |
+| ③ 启动服务 | 跑一条命令 `bash deploy/startup.sh` | 第 3 节 | 5-10 分钟（等镜像下载）|
+| ④ 配置平台 | 网页里填模型 Key、建知识库、导入工作流 | 第 4 节 | 10 分钟 |
+| ⑤ 开始问答 | 打开对话页提问验证 | 第 5 节 | 2 分钟 |
+
+> 👉 全程照着章节顺序走即可，每一步都有可直接复制的命令。卡住了看 **第 11 节 常见问题**。
+
 ---
 
 ## 2. 准备工作
@@ -110,44 +122,64 @@ pip install -r src/requirements.txt
 
 ## 3. 第一步：启动 Dify 服务
 
-### 3.1 获取项目文件
+> 🚀 **最省事的方式（推荐新手）**：直接跑一键脚本，它会自动帮你下载 Dify、生成配置、启动服务。
+> 见下方 **3.1（一键启动）**。如果想手动一步步来，看 **3.2（手动启动）**。
 
-本项目的 Dify 部署目录（`dify/`，含 docker-compose、nginx 配置、SSL 证书等）体积较大，**不随 Git 仓库分发**，而是打包在项目根目录的 `DifiProject.rar` 里。
+### 3.1 一键启动（推荐）
 
-1. 拿到项目后，先解压 `DifiProject.rar`，得到完整的 `dify/` 目录
-2. 确认解压后存在 `dify/docker/docker-compose.yaml` 和 `dify/docker/.env`
+一条命令搞定「下载 Dify → 生成配置 → 启动全部服务」：
 
 ```bash
-# 进入项目目录（目录名以你实际解压/克隆得到的为准）
-cd homework
-# 解压部署包（Windows 可用 WinRAR/7-Zip 右键解压；命令行示例：）
+# Mac / Linux / Windows(Git Bash 或 WSL)
+bash deploy/startup.sh
+
+# Windows PowerShell
+powershell -ExecutionPolicy Bypass -File deploy\startup.ps1
+```
+
+脚本运行逻辑（无需你操心）：
+1. 检查 Docker 是否装好、是否在运行
+2. 如果没有 `dify/` 目录，自动 `git clone` 官方 Dify 到 `dify/`
+3. 从 `deploy/.env.template` 生成 `dify/docker/.env`
+4. **第一次运行会停下来**，提示你去 `dify/docker/.env` 填 `TAVILY_API_KEY`（联网搜索用）
+5. 填好后**再跑一次同样的命令**，它就会启动所有容器并做健康检查
+
+> 💡 **只需要填一个 Key**：`TAVILY_API_KEY`（在 https://app.tavily.com 免费获取）。
+> SiliconFlow 的模型密钥不在这里填，而是启动后在 Dify 网页控制台里配（见 **4.3 节**）。
+> `.env` 不会被 Git 提交，可放心填真实 Key。
+
+看到 `启动完成！访问地址：http://localhost` 就成功了，跳到 **第 4 节**。
+
+### 3.2 手动启动（想了解细节时用）
+
+**① 获取 Dify 目录**（一键脚本会自动做，手动则二选一）：
+
+```bash
+# 方式 A：克隆官方 Dify（推荐，和脚本一致）
+git clone https://github.com/langgenius/dify.git dify
+
+# 方式 B：如果队友给了你 DifiProject.rar，解压它得到 dify/ 目录
 # 7z x DifiProject.rar   或   unrar x DifiProject.rar
 ```
 
-> ⚠️ 若你要把 `DifiProject.rar` 转发给别人，请先确认包内的 `dify/docker/.env`、`nginx/conf.d/.htpasswd_plaintext`、`nginx/ssl/dify.key` 中**没有你的真实密钥/密码**，否则等于把私钥一起发出去了。安全做法：分发前把这些文件的敏感值清空或重置。
-
-### 3.2 准备 .env 文件
-
-解压后 `dify/docker/.env` 应已存在。如果没有，从模板复制一份：
+**② 准备配置文件**：
 
 ```bash
 # Mac/Linux
 cp deploy/.env.template dify/docker/.env
+cp deploy/docker-compose.override.yaml dify/docker/docker-compose.override.yaml
 # Windows（PowerShell）
 copy deploy\.env.template dify\docker\.env
+copy deploy\docker-compose.override.yaml dify\docker\docker-compose.override.yaml
 ```
 
-打开 `dify/docker/.env`，填入 Tavily 密钥（联网搜索用）：
+打开 `dify/docker/.env`，填入 Tavily 密钥：
 
 ```bash
 TAVILY_API_KEY=tvly-你的Tavily密钥
 ```
 
-> 💡 **SiliconFlow 的模型密钥不在这里填**。Dify 的模型供应商是在 Web 控制台里配置的（见下方 **4.3 节**），`.env` 只保存 Tavily 等辅助配置。
->
-> ⚠️ `.env` 文件不会被 Git 提交（已在 `.gitignore` 中），可以安全填写真实 Key。
-
-### 3.3 启动所有服务
+**③ 启动服务**：
 
 ```bash
 cd dify/docker
@@ -155,6 +187,18 @@ docker compose up -d
 ```
 
 首次启动会下载镜像，**大约需要 5-10 分钟**（取决于网速）。
+
+> ⚠️ 若你要把 `DifiProject.rar` 转发给别人，先确认包内 `dify/docker/.env`、`nginx/conf.d/.htpasswd_plaintext`、`nginx/ssl/dify.key` 中**没有真实密钥/密码**。可运行 `bash deploy/sanitize-for-release.sh` 检查清理（见 [docs/分发前清理清单.md](docs/分发前清理清单.md)）。
+
+### 3.3 （可选）加 HTTPS + 登录保护
+
+以上启动后是 `http://localhost` 直接访问。如果想加上 HTTPS、限流和登录框（Basic Auth），跑一条命令：
+
+```bash
+bash deploy/setup-hardening.sh   # Windows 用 Git Bash / WSL
+```
+
+它会自动生成自签证书、生成随机 Basic Auth 密码（存到 `.htpasswd_plaintext`）、部署 Nginx 配置并重启。完成后改用 `https://localhost` 访问。不需要这层保护的话，跳过本节即可。
 
 ### 3.4 确认服务正常
 
@@ -182,20 +226,20 @@ docker-weaviate-1    Up
 
 ### 4.1 登录控制台
 
-打开浏览器，访问 `https://localhost`
+打开浏览器访问：
+- **没做 3.3 加固** → `http://localhost`
+- **做了 3.3 加固** → `https://localhost`（浏览器提示「证书不安全」→ 点「高级」→「继续访问」，自签名证书正常现象）
 
-- 浏览器会提示「证书不安全」→ 点击「高级」→「继续访问」（自签名证书，正常现象）
-- **Basic Auth 弹窗**：输入用户名和密码（见下方「登录凭据」）
-- **Dify 登录**：首次访问会进入初始化页面，自行注册管理员邮箱和密码（后续用这组账号登录控制台）
+首次访问会进入 **初始化页面**：自行注册管理员邮箱和密码，之后就用这组账号登录控制台。
 
-### 4.2 登录凭据（两道验证）
+### 4.2 登录凭据
 
 | 验证层 | 用户名 | 密码位置 |
 |--------|--------|---------|
-| Nginx Basic Auth（第一道）| `admin` | `dify/docker/nginx/conf.d/.htpasswd_plaintext` 文件中 |
-| Dify 账号（第二道）| 首次启动时自己注册的邮箱 | 初始化时自行设置 |
+| Dify 账号（必有）| 首次访问时自己注册的邮箱 | 初始化时自行设置 |
+| Nginx Basic Auth（仅做了 3.3 加固才有）| `admin` | `dify/docker/nginx/conf.d/.htpasswd_plaintext` 文件中 |
 
-> 📌 **务必保存 `htpasswd_plaintext` 文件中的密码**，容器重建后该文件会消失，密码丢失需重新生成。
+> 📌 若做了 3.3 加固：**务必保存 `.htpasswd_plaintext` 里的密码**，容器重建后该文件会消失，丢了需重新生成。
 
 ### 4.3 配置 SiliconFlow 模型供应商
 
@@ -488,19 +532,34 @@ homework/
 │   ├── ... （02-11 各设备大类）
 │   └── 12_除尘环保与公用工程/
 │
-└── docs/
-    └── KNOWLEDGE_BASE_GUIDE.md          # 真实手册获取与上传完整指南
+├── deploy/
+│   ├── startup.sh / startup.ps1         # 一键启动脚本（自动下载Dify+配置+启动）
+│   ├── setup-hardening.sh               # 一键加 HTTPS+限流+Basic Auth
+│   ├── sanitize-for-release.sh          # 分发前清理密钥脚本
+│   ├── .env.template                    # 环境变量模板
+│   ├── docker-compose.override.yaml     # 资源限制+日志轮转
+│   └── nginx/rate_limit.conf.template   # Nginx 配置模板
+│
+└── docs/                               # 详细文档（PRD/架构/调优/应急/验收等 14 篇）
+    ├── KNOWLEDGE_BASE_GUIDE.md          # 真实手册获取与上传完整指南
+    └── 分发前清理清单.md                 # 交给别人前的脱敏清单
 ```
 
 ---
 
 ## 11. 常见问题
 
+**Q：`bash deploy/startup.sh` 跑完好像停了，让我填 .env？**  
+A：这是正常的。脚本第一次运行只帮你把 `.env` 建好，然后停下来等你填 `TAVILY_API_KEY`。填好后**再运行一次同样的命令**，它就会真正启动服务。
+
+**Q：为什么我访问没有弹登录框 / 没有 HTTPS？**  
+A：因为 HTTPS + Basic Auth 是**可选**的加固层。想要的话运行 `bash deploy/setup-hardening.sh`（见 3.3）。不运行就是普通 `http://localhost` 直接访问，也能正常用。
+
 **Q：浏览器提示「证书不安全」**  
-A：正常现象，使用的是自签名证书。点击「高级」→「继续访问 localhost」。
+A：正常现象，做了 3.3 加固后用的是自签名证书。点击「高级」→「继续访问 localhost」。
 
 **Q：弹出 Basic Auth 登录框，用户名密码是什么？**  
-A：用户名 `admin`，密码在 `dify/docker/nginx/conf.d/.htpasswd_plaintext` 文件里。
+A：用户名 `admin`，密码在 `dify/docker/nginx/conf.d/.htpasswd_plaintext` 文件里（运行 3.3 加固脚本时自动生成的随机密码）。
 
 **Q：登录 Dify 控制台的账号密码是什么？**  
 A：首次启动后访问 `https://localhost` 会进入初始化页面，由你自行注册管理员邮箱和密码。之后用这组自己设置的账号登录即可（不同的人部署就是各自注册的账号）。

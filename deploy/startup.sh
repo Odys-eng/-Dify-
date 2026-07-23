@@ -94,15 +94,15 @@ if [ ! -f "$ENV_FILE" ]; then
     echo -e "${YELLOW}  已从模板创建 .env 文件${NC}"
     echo -e "${YELLOW}  ⚠️ 请编辑 $ENV_FILE 填入实际 API Key 后重新运行此脚本${NC}"
     echo -e "${YELLOW}  必填项：${NC}"
-    echo -e "${YELLOW}    - DEEPSEEK_API_KEY（获取：https://platform.deepseek.com）${NC}"
     echo -e "${YELLOW}    - TAVILY_API_KEY（获取：https://tavily.com）${NC}"
+    echo -e "${YELLOW}  （SiliconFlow 模型密钥不填这里，稍后在 Dify Web UI 配置）${NC}"
     exit 0
 fi
 
-# 检查是否还有占位符
-if grep -q "your_deepseek_api_key_here\|your_tavily_api_key_here" "$ENV_FILE"; then
-    echo -e "${RED}✗ .env 文件中仍有未填写的 API Key 占位符${NC}"
-    echo -e "${YELLOW}  请编辑 $ENV_FILE 填入实际值${NC}"
+# 检查 Tavily 占位符是否已填（LLM 走 SiliconFlow，在 Web UI 配，不在 .env 校验）
+if grep -q "your_tavily_api_key_here" "$ENV_FILE"; then
+    echo -e "${RED}✗ .env 中的 TAVILY_API_KEY 还是占位符${NC}"
+    echo -e "${YELLOW}  请编辑 $ENV_FILE 填入真实 Tavily 密钥${NC}"
     exit 1
 fi
 
@@ -167,11 +167,11 @@ echo -e "${GREEN}  启动完成！${NC}"
 echo -e "${BLUE}============================================================${NC}"
 echo -e "\n${GREEN}访问地址：${NC} http://localhost"
 echo -e "${GREEN}首次访问：${NC} 需创建管理员账号（邮箱 + 密码）"
-echo -e "\n${YELLOW}下一步（参考 docs/部署检查清单.md）：${NC}"
-echo -e "  1. 配置 DeepSeek 模型供应商（模型名填 deepseek-v4-flash）"
-echo -e "  2. 创建知识库并上传手册 PDF"
-echo -e "  3. 配置 Tavily 自定义工具"
-echo -e "  4. 创建 Workflow 应用"
+echo -e "\n${YELLOW}下一步（参考 README 第 4 节）：${NC}"
+echo -e "  1. 配置 SiliconFlow 模型供应商（推理 deepseek-ai/DeepSeek-V4-Pro + Embedding BAAI/bge-large-zh-v1.5）"
+echo -e "  2. 创建知识库并上传手册"
+echo -e "  3. 导入 Workflow（src/workflow/chatflow-dsl.yml）并填 Tavily Key"
+echo -e "  4. （可选）bash deploy/setup-hardening.sh 加 HTTPS + Basic Auth"
 echo -e "\n${BLUE}常用命令：${NC}"
 echo -e "  查看容器状态：cd dify/docker && docker compose ps"
 echo -e "  查看日志：    cd dify/docker && docker compose logs -f api"

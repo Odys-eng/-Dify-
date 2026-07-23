@@ -53,9 +53,9 @@
 
 ---
 
-## 三、步骤 2：配置 DeepSeek 模型供应商
+## 三、步骤 2：配置 SiliconFlow 模型供应商
 
-> ⚠️ **关键**：模型名必须填 `deepseek-v4-flash`，不能用 `deepseek-chat`（2026-07-24 停用）
+> ⚠️ **关键**：模型名必须填 `deepseek-ai/DeepSeek-V4-Pro`，不能用已停用的 `deepseek-chat`
 
 ### 操作步骤
 
@@ -70,24 +70,24 @@
    - 图标：一个芯片/大脑样式的图标
    - 文字：模型供应商
 
-**2.3 搜索 DeepSeek**
+**2.3 搜索 SiliconFlow**
 
-3. 在模型供应商列表中，找到 **「DeepSeek」**
-   - 如果列表中没有，使用顶部的搜索框输入 `DeepSeek`
+3. 在模型供应商列表中，找到 **「SiliconFlow」**
+   - 如果列表中没有，使用顶部的搜索框输入 `SiliconFlow`
    - 如果还是没有，选择 **「OpenAI-API-compatible」** 代替
 
 **2.4 添加模型**
 
-4. 点击 DeepSeek 卡片上的 **「添加模型」** 或 **「设置」** 按钮
+4. 点击 SiliconFlow 卡片上的 **「添加模型」** 或 **「设置」** 按钮
 
 5. 填写以下配置：
 
 | 配置项 | 填写值 | 说明 |
 |--------|--------|------|
-| API Key | 粘贴 `.env` 中的 `DEEPSEEK_API_KEY` | 以 `sk-` 开头 |
-| API Base URL | `https://api.deepseek.com` | 不需要尾部 `/v1` |
+| API Key | 粘贴 `.env` 中的 `SILICONFLOW_API_KEY` | 注册地址 https://siliconflow.cn |
+| API Base URL | `https://api.siliconflow.cn/v1` | OpenAI 兼容端点 |
 | 模型类型 | 选择 **「文本生成」** | — |
-| 模型名称 | `deepseek-v4-flash` | ⚠️ 不要选 deepseek-chat |
+| 模型名称 | `deepseek-ai/DeepSeek-V4-Pro` | ⚠️ 不要选已停用的 deepseek-chat |
 | 模型模式 | 选择 **「聊天（Chat）」** | — |
 | 上下文长度 | `1000000` | 1M token |
 | 最大 Token | `8192` | — |
@@ -96,12 +96,12 @@
 
 **2.5 验证**
 
-7. 在模型列表中，找到刚添加的 `deepseek-v4-flash`
+7. 在模型列表中，找到刚添加的 `deepseek-ai/DeepSeek-V4-Pro`
 8. 点击旁边的 **「测试」** 按钮
 9. 输入 `你好`，点击发送
 10. 应返回正常回复 → **✅ 通过**
 
-### 如果找不到 DeepSeek 供应商
+### 如果找不到 SiliconFlow 供应商
 
 使用「OpenAI-API-compatible」替代：
 
@@ -109,9 +109,9 @@
 1. 模型供应商 → 搜索「OpenAI-API-compatible」
 2. 点击「添加模型」
 3. 填写：
-   - API Key：粘贴 DeepSeek Key
-   - API Endpoint：https://api.deepseek.com
-   - 模型名称：deepseek-v4-flash
+   - API Key：粘贴 SiliconFlow Key
+   - API Endpoint：https://api.siliconflow.cn/v1
+   - 模型名称：deepseek-ai/DeepSeek-V4-Pro
    - 模型类型：文本生成（聊天）
 ```
 
@@ -320,7 +320,7 @@ LLM 节点的 User Prompt 中，引用 HTTP 请求的输出：
 
 1. 在画布上**双击**「智能问答生成」节点
 2. 右侧配置面板 → 找到**「模型」**部分
-3. 确认模型选择为 `deepseek-v4-flash`
+3. 确认模型选择为 `deepseek-ai/DeepSeek-V4-Pro`
 4. 设置：
 
 | 配置项 | 值 |
@@ -496,7 +496,7 @@ D:\code\DifiProject\data\pdfs\
 | 问题 | 解决方法 |
 |------|---------|
 | 知识库召回测试无结果 | 降低 Score 阈值（0.5 → 0.3） |
-| LLM 节点报 `Model not found: deepseek-v4-flash` | 用「OpenAI-API-compatible」方式接入，endpoint 填 `https://api.deepseek.com` |
+| LLM 节点报 `Model not found: deepseek-ai/DeepSeek-V4-Pro` | 用「OpenAI-API-compatible」方式接入，endpoint 填 `https://api.siliconflow.cn/v1` |
 | Tavily 工具测试 401 | API Key 不对，重新获取 → `.env` → 工具配置 |
 | 知识库检索走了联网分支 | 检查 if-else 节点的判断条件：`result not empty` |
 | 容器 UI 访问 404 | `docker compose restart nginx` |

@@ -56,15 +56,15 @@ python src/knowledge/verify_retrieval.py --dataset_id xxx --api_key dataset-xxx
 
 | 报错信息 | 可能原因 | 解决方案 |
 |---------|---------|---------|
-| `Model not found: deepseek-chat` | ⚠️ 用了停用的模型名 | 改为 `deepseek-v4-flash`（2026-07-24 停用） |
-| `Model not found: deepseek-v4-flash` | Dify 版本过旧或未配置供应商 | 1. 升级 Dify<br>2. 用「OpenAI-API-compatible」方式接入 |
-| `HTTP 401 Unauthorized` | API Key 错误 | 在「设置 → 模型供应商 → DeepSeek」重新填入 Key |
-| `HTTP 429 Rate limit` | DeepSeek 调用频率超限 | 等待 60 秒后重试，或检查账户额度 |
+| `Model not found: deepseek-chat` | ⚠️ 用了已停用的旧模型名 | 改为 `deepseek-ai/DeepSeek-V4-Pro` |
+| `Model not found: deepseek-ai/DeepSeek-V4-Pro` | Dify 版本过旧或未配置供应商 | 1. 升级 Dify<br>2. 用 SiliconFlow 供应商或「OpenAI-API-compatible」方式接入 |
+| `HTTP 401 Unauthorized` | API Key 错误 | 在「设置 → 模型供应商 → SiliconFlow」重新填入 Key |
+| `HTTP 429 Rate limit` | SiliconFlow 调用频率超限 | 等待 60 秒后重试，或检查账户额度 |
 | 输出格式不符合预期 | System Prompt 未生效 | 1. 检查 LLM 节点的 `prompt_template`<br>2. 确认 system 角色的文本已粘贴 |
 | 输出缺少引用来源 | Prompt 中引用规则未强调 | 在 System Prompt 中强化「每个结论必须标注引用」 |
 | 输出包含编造信息 | LLM 幻觉 | 1. 降低 `temperature`（0.3 → 0.1）<br>2. 在 Prompt 中强调「不编造」 |
 | 响应超时（>30s） | 思考模式耗时过长 | 降低 `reasoning_effort`（high → 默认） |
-| `thinking mode not supported` | 模型不支持思考模式 | 确认用 `deepseek-v4-flash`（V3 不支持思考模式） |
+| `thinking mode not supported` | 模型不支持思考模式 | 确认用 `deepseek-ai/DeepSeek-V4-Pro`（V3 不支持思考模式） |
 
 **LLM 输出验证清单**：
 
@@ -232,7 +232,7 @@ Step 5：端到端测试
 
 | 优化项 | 当前配置 | 优化建议 |
 |--------|---------|---------|
-| DeepSeek 调用 | V4-Flash ¥1/百万输入 | 最优（已是最便宜） |
+| DeepSeek 调用 | V4-Pro（经 SiliconFlow）¥12/百万输入 | 按 Agent 稳定性需求选型 |
 | Tavily 调用 | 免费 1000 次/月 | Demo 阶段够用 |
 | 知识库向量化 | 一次性 | 无持续成本 |
 | Embedding | bge-large-zh 本地 | 无 API 费用 |

@@ -265,7 +265,7 @@
 
 | 层级 | 技术选型 | 版本/规格 | 选型理由 |
 |------|---------|----------|---------|
-| **LLM** | DeepSeek-V4-Flash | `deepseek-v4-flash` | 思考模式 + Function Calling 错误率 2% + ¥1/百万输入 + 1M 上下文 |
+| **LLM** | DeepSeek-V4-Pro（经 SiliconFlow 调用） | `deepseek-ai/DeepSeek-V4-Pro` | 思考模式 + Function Calling 错误率 2% + 顶级推理能力 + 1M 上下文 |
 | **Embedding** | bge-large-zh-v1.5 | 中文 SOTA | 开源免费 + Dify 内置支持 + 中文优化 |
 | **向量数据库** | Weaviate | Dify 默认 | Docker 自带 + 零额外配置 + Demo 量级足够 |
 | **通用搜索** | Tavily API | 免费 1000 次/月 | 专为 AI agent 设计 + 结构化返回 |
@@ -276,24 +276,24 @@
 
 ### 1.1 关键选型决策说明
 
-#### 为什么选 DeepSeek-V4-Flash 而非 V4-Pro？
+#### 为什么选 DeepSeek-V4-Pro（经 SiliconFlow 调用）？
 
 | 维度 | V4-Flash | V4-Pro |
 |------|---------|--------|
 | 输入价格 | ¥1/百万 token | ¥12/百万 token |
 | 输出价格 | ¥2/百万 token | ¥24/百万 token |
 | 推理能力 | 接近 Pro | 顶级 |
-| Demo 适用性 | ✅ 够用 | 过剩 |
+| Agent/Function Calling 稳定性 | 一般 | ✅ 更优 |
 
-**结论**：Demo 阶段 V4-Flash 性价比远高于 V4-Pro。
+**结论**：本项目多轮 Agent 编排与 Function Calling 对推理稳定性要求高，选用 `deepseek-ai/DeepSeek-V4-Pro`，并统一经 SiliconFlow 平台调用。
 
 #### ⚠️ DeepSeek API 旧 ID 停用警告
 
-> **关键时间点**：`deepseek-chat` 和 `deepseek-reasoner` 将于 **2026-07-24 15:59 UTC** 停用。
+> **关键时间点**：`deepseek-chat` 和 `deepseek-reasoner` 等旧模型 ID 已停用，切勿使用。
 >
-> **必须使用**：`deepseek-v4-flash` 或 `deepseek-v4-pro`
+> **必须使用**：`deepseek-ai/DeepSeek-V4-Pro`（经 SiliconFlow 平台调用）
 >
-> **当前日期**：2026-07-19，距停用仅剩 5 天！
+> **接入方式**：在 Dify「模型供应商」中选 SiliconFlow 并填入 API Key（注册地址 https://siliconflow.cn）。
 
 ---
 
@@ -315,7 +315,7 @@ graph TB
     end
 
     subgraph ExternalLayer[外部服务层]
-        DS[DeepSeek V4-Flash API<br/>LLM 推理]
+        DS[DeepSeek-V4-Pro API<br/>经 SiliconFlow 调用<br/>LLM 推理]
         BGE[BGE-zh Embedding<br/>向量化]
         Tavily[Tavily Search API<br/>联网搜索]
         Web[🌐 专业站点<br/>fanuc.com / siemens.com<br/>gongkong.com / csdn.net]
@@ -352,7 +352,7 @@ graph TB
 | Dify Chatbot UI | 用户交互界面，展示答案与引用块 | Docker 容器（Dify Web） |
 | Dify Workflow | 工作流编排引擎，固定检索-判断-生成流程 | Docker 容器（Dify API + Worker） |
 | Weaviate 向量库 | 存储手册切片的向量索引 | Docker 容器（Dify 自带） |
-| DeepSeek V4-Flash | LLM 推理，生成结构化答案 | 外部 API（DeepSeek 云服务） |
+| DeepSeek-V4-Pro | LLM 推理，生成结构化答案 | 外部 API（经 SiliconFlow 平台调用） |
 | BGE-zh Embedding | 文档与查询向量化 | Docker 容器（Dify 内置或外挂） |
 | Tavily API | 联网搜索工具 | 外部 API |
 | 自定义站点定向工具 | 封装 Tavily + site: 语法 | Dify 自定义工具（OpenAPI Schema） |
@@ -415,7 +415,7 @@ graph LR
 
 #### 节点 5：LLM（综合生成）
 
-- **模型**：`deepseek-v4-flash`
+- **模型**：`deepseek-ai/DeepSeek-V4-Pro`（经 SiliconFlow 调用）
 - **思考模式**：开启，`reasoning_effort=high`
 - **输入**：
   - 分支 A：`user_query` + `retrieved_chunks`
@@ -558,7 +558,7 @@ def site_directed_search(query: str) -> dict:
 
 | 参数 | 值 | 说明 |
 |------|-----|------|
-| 模型 | `deepseek-v4-flash` | ⚠️ 不要用 `deepseek-chat`（7/24 停用） |
+| 模型 | `deepseek-ai/DeepSeek-V4-Pro` | 经 SiliconFlow 调用，⚠️ 不要用已停用的 `deepseek-chat` |
 | 思考模式 | 开启 | `thinking.type=enabled` |
 | reasoning_effort | `high` | 复杂 Agent 场景推荐 |
 | 上下文窗口 | 1M token | 可容纳整本手册 |
@@ -683,10 +683,10 @@ docker compose ps
 
 ### 7.5 Dify 内部配置步骤
 
-1. **添加 DeepSeek 模型供应商**
-   - 设置 → 模型供应商 → DeepSeek
-   - 填入 API Key
-   - 模型选择 `deepseek-v4-flash`（⚠️ 不要选 deepseek-chat）
+1. **添加 SiliconFlow 模型供应商**
+   - 设置 → 模型供应商 → SiliconFlow
+   - 填入 API Key（注册地址 https://siliconflow.cn）
+   - 模型选择 `deepseek-ai/DeepSeek-V4-Pro`（⚠️ 不要选已停用的 deepseek-chat）
 
 2. **创建知识库**
    - 知识库 → 创建知识库
@@ -718,8 +718,8 @@ docker compose ps
 
 | 风险 | 影响 | 应对措施 |
 |------|------|---------|
-| **DeepSeek 旧 ID 停用**（2026-07-24） | Demo 直接报废 | ⚠️ **必须使用 `deepseek-v4-flash`**，绝不使用 `deepseek-chat` |
-| **Dify 未适配 V4 模型** | 无法在 Dify 中选择 V4 | 通过「自定义模型 / OpenAI 兼容接口」方式接入 |
+| **DeepSeek 旧 ID 停用** | Demo 直接报废 | ⚠️ **必须使用 `deepseek-ai/DeepSeek-V4-Pro`**（经 SiliconFlow 调用），绝不使用已停用的 `deepseek-chat` |
+| **Dify 未适配 V4 模型** | 无法在 Dify 中选择 V4 | 通过 SiliconFlow 供应商或「OpenAI 兼容接口」方式接入 |
 
 ### 1.2 P1 级风险（需提前准备）
 
@@ -799,10 +799,10 @@ docker compose ps
 - **决策**：Demo 前预上传 2-3 份手册，演示话术调整
 - **代价**：失去"用户即传即用"的交互感
 
-### 决策 3：LLM 选型 DeepSeek-V4-Flash
+### 决策 3：LLM 选型 DeepSeek-V4-Pro（经 SiliconFlow 调用）
 
-- **追问点**：DeepSeek 旧 ID（deepseek-chat）将于 2026-07-24 停用
-- **决策**：使用 `deepseek-v4-flash`，开启思考模式
+- **追问点**：DeepSeek 旧 ID（deepseek-chat）已停用
+- **决策**：经 SiliconFlow 平台调用 `deepseek-ai/DeepSeek-V4-Pro`，开启思考模式
 - **教训**：模型版本等时效性信息必须联网核实，不能凭记忆判断
 
 ### 决策 4：三层混合检索策略

@@ -1,0 +1,100 @@
+# ============================================================
+# rate_limit.conf.template
+# 用途：Nginx 反向代理 = HTTPS + 限流 + Basic Auth
+#   - HTTP:80 自动跳转 HTTPS:443
+#   - API 路径（/v1 /console/api /api ...）用 Bearer Token 保护，不加 Basic Auth
+#   - WebApp/控制台路径（/ /explore）加 Basic Auth
+# 部署方式：由 deploy/setup-hardening.sh 自动复制到
+#   dify/docker/nginx/conf.d/rate_limit.conf 并生成证书/密码。
+# ============================================================
+
+limit_req_zone $binary_remote_addr zone=chat_api:10m rate=5r/s;
+limit_req_zone $binary_remote_addr zone=console:10m  rate=10r/s;
+
+# HTTP → HTTPS 重定向
+server {
+    listen 80;
+    server_name _;
+    return 301 https://$host$request_uri;
+}
+
+# HTTPS 主配置
+server {
+    listen 443 ssl;
+    server_name _;
+
+    ssl_certificate     /etc/ssl/dify.crt;
+    ssl_certificate_key /etc/ssl/dify.key;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # ==== API 路径（Bearer Token 保护，不加 Basic Auth）====
+
+    location /v1/ {
+        limit_req zone=chat_api burst=20 nodelay;
+        limit_req_status 429;
+        proxy_pass http://api:5001;
+        include proxy.conf;
+    }
+
+    location /console/api {
+        limit_req zone=console burst=30 nodelay;
+        limit_req_status 429;
+        proxy_pass http://api:5001;
+        include proxy.conf;
+    }
+
+    location /api {
+        limit_req zone=chat_api burst=20 nodelay;
+        limit_req_status 429;
+        proxy_pass http://api:5001;
+        include proxy.conf;
+    }
+
+    location /socket.io/ {
+        resolver 127.0.0.11 valid=30s ipv6=off;
+        set $socket_io_upstream api_websocket:5001;
+        proxy_pass http://$socket_io_upstream;
+        include proxy.conf;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /files {
+        proxy_pass http://api:5001;
+        include proxy.conf;
+    }
+
+    location /openapi {
+        proxy_pass http://api:5001;
+        include proxy.conf;
+    }
+
+    location /e/ {
+        proxy_pass http://plugin_daemon:5002;
+        proxy_set_header Dify-Hook-Url $scheme://$host$request_uri;
+        include proxy.conf;
+    }
+
+    location /mcp    { proxy_pass http://api:5001; include proxy.conf; }
+    location /triggers { proxy_pass http://api:5001; include proxy.conf; }
+
+    # ==== WebApp / 控制台路径（Basic Auth 保护）====
+
+    location /explore {
+        auth_basic           "制造业设备维修平台 - 请登录";
+        auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+        proxy_pass http://web:3000;
+        include proxy.conf;
+    }
+
+    location / {
+        auth_basic           "制造业设备维修平台 - 请登录";
+        auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+        proxy_pass http://web:3000;
+        include proxy.conf;
+    }
+}

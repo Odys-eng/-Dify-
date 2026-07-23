@@ -85,16 +85,16 @@ if (-not (Test-Path $EnvFile)) {
     Write-Host "  已从模板创建 .env 文件" -ForegroundColor Yellow
     Write-Host "  ⚠️ 请编辑 $EnvFile 填入实际 API Key 后重新运行此脚本" -ForegroundColor Yellow
     Write-Host "  必填项：" -ForegroundColor Yellow
-    Write-Host "    - DEEPSEEK_API_KEY（获取：https://platform.deepseek.com）" -ForegroundColor Yellow
     Write-Host "    - TAVILY_API_KEY（获取：https://tavily.com）" -ForegroundColor Yellow
+    Write-Host "  （SiliconFlow 模型密钥不填这里，稍后在 Dify Web UI 配置）" -ForegroundColor Yellow
     exit 0
 }
 
-# 检查是否还有占位符
+# 检查 Tavily 占位符是否已填（LLM 走 SiliconFlow，在 Web UI 配）
 $envContent = Get-Content $EnvFile -Raw
-if ($envContent -match "your_deepseek_api_key_here|your_tavily_api_key_here") {
-    Write-Host "✗ .env 文件中仍有未填写的 API Key 占位符" -ForegroundColor Red
-    Write-Host "  请编辑 $EnvFile 填入实际值" -ForegroundColor Yellow
+if ($envContent -match "your_tavily_api_key_here") {
+    Write-Host "✗ .env 中的 TAVILY_API_KEY 还是占位符" -ForegroundColor Red
+    Write-Host "  请编辑 $EnvFile 填入真实 Tavily 密钥" -ForegroundColor Yellow
     exit 1
 }
 
@@ -170,11 +170,11 @@ Write-Host "============================================================" -Foreg
 Write-Host "`n访问地址： http://localhost" -ForegroundColor Green
 Write-Host "首次访问： 需创建管理员账号（邮箱 + 密码）" -ForegroundColor Green
 
-Write-Host "`n下一步（参考 docs\部署检查清单.md）：" -ForegroundColor Yellow
-Write-Host "  1. 配置 DeepSeek 模型供应商（模型名填 deepseek-v4-flash）"
-Write-Host "  2. 创建知识库并上传手册 PDF"
-Write-Host "  3. 配置 Tavily 自定义工具"
-Write-Host "  4. 创建 Workflow 应用"
+Write-Host "`n下一步（参考 README 第 4 节）：" -ForegroundColor Yellow
+Write-Host "  1. 配置 SiliconFlow 模型供应商（推理 deepseek-ai/DeepSeek-V4-Pro + Embedding BAAI/bge-large-zh-v1.5）"
+Write-Host "  2. 创建知识库并上传手册"
+Write-Host "  3. 导入 Workflow（src\workflow\chatflow-dsl.yml）并填 Tavily Key"
+Write-Host "  4. （可选）加 HTTPS + Basic Auth（Git Bash 运行 bash deploy/setup-hardening.sh）"
 
 Write-Host "`n常用命令：" -ForegroundColor Blue
 Write-Host "  查看容器状态：cd dify\docker; docker compose ps"
