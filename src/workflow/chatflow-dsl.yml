@@ -1,0 +1,557 @@
+app:
+  description: 制造业设备维修知识库智能问答平台（Pipeline RAG Demo）
+  icon: 🔧
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 制造业设备维修智能问答
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    opening_statement: '你好！我是制造业设备维修智能助手 🔧
+
+      可以向我提问 CNC 数控机床、PLC、工业机器人等设备的故障诊断问题。
+
+      例如：「FANUC 0i-MF 主轴异响 SP-2003 报警怎么处理？」
+
+      '
+    suggested_questions:
+    - CNC 加工中心换刀故障怎么排查？
+    - 西门子 840D sl 驱动过流如何处理？
+    - 伺服电机过热保护机制是什么？
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+    speech_to_text:
+      enabled: false
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    file_upload:
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      enabled: false
+      allowed_file_types:
+      - image
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      number_limits: 3
+      fileUploadConfig:
+        file_size_limit: 50
+        batch_count_limit: 5
+        file_upload_limit: 20
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        audio_file_size_limit: 50
+        workflow_file_upload_limit: 10
+        image_file_batch_limit: 10
+        single_chunk_attachment_limit: 10
+        attachment_image_file_size_limit: 2
+  graph:
+    edges:
+    - id: start-source-knowledge-target
+      data:
+        isInLoop: false
+        sourceType: start
+        targetType: knowledge-retrieval
+        isInIteration: false
+      type: custom
+      source: start
+      target: knowledge_retrieval
+      zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+    - id: knowledge-source-ifelse-target
+      data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: if-else
+        isInIteration: false
+      type: custom
+      source: knowledge_retrieval
+      target: if_else
+      zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+    - id: ifelse-true-llm-kb
+      data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+        isInIteration: false
+      type: custom
+      source: if_else
+      target: llm_kb
+      zIndex: 0
+      sourceHandle: 'true'
+      targetHandle: target
+    - id: ifelse-false-tavily
+      data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+        isInIteration: false
+      type: custom
+      source: if_else
+      target: tavily_search
+      zIndex: 0
+      sourceHandle: 'false'
+      targetHandle: target
+    - id: tavily-llm-web
+      data:
+        isInLoop: false
+        sourceType: http-request
+        targetType: llm
+        isInIteration: false
+      type: custom
+      source: tavily_search
+      target: llm_generate
+      zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+    - id: llm-source-answer-target
+      data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+        isInIteration: false
+      type: custom
+      source: llm_generate
+      target: answer
+      zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+    - id: llm-kb-answer-kb
+      data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+        isInIteration: false
+      type: custom
+      source: llm_kb
+      target: answer_kb
+      zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+    nodes:
+    - id: start
+      data:
+        desc: 接收用户输入的故障描述
+        type: start
+        title: 开始
+        selected: false
+        variables: []
+      type: custom
+      width: 242
+      height: 100
+      zIndex: 0
+      position:
+        x: 100
+        y: 300
+      selected: false
+      positionAbsolute:
+        x: 100
+        y: 300
+    - id: knowledge_retrieval
+      data:
+        desc: 检索预置设备手册知识库，score_threshold=0.5 自动过滤
+        type: knowledge-retrieval
+        title: 知识库检索
+        selected: false
+        dataset_ids:
+        - 62874d02-ed9d-4d31-b087-6b4ea50d0bc2
+        retrieval_mode: multiple
+        query_variable_selector:
+        - sys
+        - query
+        multiple_retrieval_config:
+          top_k: 3
+          reranking_mode: reranking_model
+          reranking_model:
+            model: Pro/BAAI/bge-reranker-v2-m3
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.5
+          reranking_enable: true
+        query_attachment_selector: []
+      type: custom
+      width: 241
+      height: 133
+      zIndex: 0
+      position:
+        x: 400
+        y: 300
+      selected: false
+      positionAbsolute:
+        x: 400
+        y: 300
+    - id: if_else
+      data:
+        desc: 判断知识库是否命中（result not empty = 命中）
+        type: if-else
+        cases:
+        - id: 'true'
+          case_id: 'true'
+          conditions:
+          - id: condition_1
+            value: ''
+            variable_selector:
+            - knowledge_retrieval
+            - result
+            comparison_operator: not empty
+          logical_operator: and
+        title: 命中判断
+        selected: false
+      type: custom
+      width: 241
+      height: 167
+      zIndex: 0
+      position:
+        x: 700
+        y: 300
+      selected: false
+      positionAbsolute:
+        x: 700
+        y: 300
+    - id: tavily_search
+      data:
+        url: https://api.tavily.com/search
+        body:
+          data:
+          - key: ''
+            type: text
+            value: "{\n  \"api_key\": \"REPLACE_TAVILY_KEY\",\n  \"query\": \"{{#sys.query#}}\",\n  \"max_results\": 5,\n\
+              \  \"search_depth\": \"basic\",\n  \"include_answer\": true\n}\n"
+          type: raw-text
+        desc: 联网搜索制造业设备维修资料（知识库未命中时兜底）
+        type: http-request
+        title: Tavily HTTP 搜索
+        method: post
+        params: ''
+        headers: 'Content-Type: application/json
+
+          '
+        timeout:
+          read: 10
+          write: 8
+          connect: 8
+        selected: false
+        ssl_verify: true
+        retry_config:
+          max_retries: 5
+          retry_enabled: true
+          retry_interval: 100
+        authorization:
+          type: no-auth
+      type: custom
+      width: 241
+      height: 164
+      zIndex: 0
+      position:
+        x: 1000
+        y: 450
+      selected: false
+      positionAbsolute:
+        x: 1000
+        y: 450
+    - id: llm_generate
+      data:
+        desc: 基于知识库或搜索结果生成结构化答案
+        type: llm
+        model:
+          mode: chat
+          name: deepseek-ai/DeepSeek-V4-Pro
+          provider: langgenius/siliconflow/siliconflow
+          completion_params:
+            max_tokens: 2048
+            temperature: 0.6
+        title: 智能问答生成
+        vision:
+          enabled: false
+        context:
+          enabled: false
+        selected: false
+        prompt_template:
+        - id: d91badd0-32ea-4738-bcba-72af7547c0aa
+          role: system
+          text: '你是一位制造业设备维修智能助手，专注于 CNC 数控机床、PLC、工业机器人、伺服系统等设备的故障诊断与维修指导。
+
+
+            # Role
+
+            - You are a manufacturing equipment maintenance expert AI assistant.
+
+            - 你拥有深厚的设备维修知识，能基于检索到的资料提供专业、可执行的建议。
+
+
+            # 1. 内容来源约束
+
+            - 严格基于知识库检索结果或联网搜索结果回答，不编造资料中未出现的信息
+
+            - 知识库结果非空时优先使用知识库内容；知识库为空时使用联网搜索结果
+
+
+            # 2. 答案结构（根据问题类型自动选择）
+
+
+            ## 故障诊断类（报警代码、设备异常、维修故障）：
+
+            **故障可能原因：**
+
+            1. [原因]（概率 XX%）
+
+
+            **排查步骤：**
+
+            Step 1: [动作]
+
+            ⚠️ Step N: [涉及安全操作必须加警告]
+
+
+            **引用来源：**
+
+            - 📄 [文档名] 第X页  /  🔗 [URL]
+
+
+            ## 功能查询/规格说明/通用问题：
+
+            自然组织答案，保持专业性，结尾标注引用来源，无需套用故障诊断格式。
+
+
+            # 3. 引用格式
+
+            - 知识库：【来源：文档名 第X页】
+
+            - 联网：【来源：URL】
+
+
+            # 4. 多轮对话
+
+            - 追问时保持设备型号、故障类型等上下文一致
+
+            - 话题切换时直接回答新问题
+
+
+            # 5. 兜底话术
+
+            当资料不足时：说明现有资料无法完全解答，列出已找到的相关信息，建议联系厂商技术支持或查阅随机手册。
+
+
+            # 6. 安全警告
+
+            - 高压电操作：加 ⚠️ 警告
+
+            - 机械拆卸：提醒断电后操作
+
+            - 压力系统：提醒泄压后操作
+
+
+            # 7. 语言
+
+            - 默认简体中文；用户用英文提问则用英文回答
+
+            - 设备型号、报警代码等专有名词保留原始语言'
+        - id: 01abb645-f290-4d05-8e5e-b054795cdef4
+          role: user
+          text: '用户问题：{{#sys.query#}}
+
+
+            --- 联网搜索结果（知识库无匹配，以下为互联网检索结果）---
+
+            {{#tavily_search.body#}}
+
+
+            请基于以上联网搜索结果专业回答用户的设备维修问题。'
+        structured_output_enabled: false
+      type: custom
+      width: 241
+      height: 115
+      zIndex: 0
+      position:
+        x: 1300
+        y: 300
+      selected: false
+      positionAbsolute:
+        x: 1300
+        y: 300
+    - id: answer
+      data:
+        desc: 输出 LLM 生成的答案
+        type: answer
+        title: 回复
+        answer: '{{#llm_generate.text#}}'
+        selected: true
+        variables: []
+      type: custom
+      width: 241
+      height: 130
+      zIndex: 0
+      position:
+        x: 1600
+        y: 300
+      selected: true
+      positionAbsolute:
+        x: 1600
+        y: 300
+    - id: llm_kb
+      data:
+        desc: 基于知识库或搜索结果生成结构化答案
+        type: llm
+        model:
+          mode: chat
+          name: deepseek-ai/DeepSeek-V4-Pro
+          provider: langgenius/siliconflow/siliconflow
+          completion_params:
+            max_tokens: 2048
+            temperature: 0.3
+        title: 智能问答生成（知识库）
+        vision:
+          enabled: false
+        context:
+          enabled: false
+        selected: false
+        prompt_template:
+        - id: d91badd0-32ea-4738-bcba-72af7547c0aa
+          role: system
+          text: '你是一位制造业设备维修智能助手，专注于 CNC 数控机床、PLC、工业机器人、伺服系统等设备的故障诊断与维修指导。
+
+
+            # Role
+
+            - You are a manufacturing equipment maintenance expert AI assistant.
+
+            - 你拥有深厚的设备维修知识，能基于检索到的资料提供专业、可执行的建议。
+
+
+            # 1. 内容来源约束
+
+            - 严格基于知识库检索结果或联网搜索结果回答，不编造资料中未出现的信息
+
+            - 知识库结果非空时优先使用知识库内容；知识库为空时使用联网搜索结果
+
+
+            # 2. 答案结构（根据问题类型自动选择）
+
+
+            ## 故障诊断类（报警代码、设备异常、维修故障）：
+
+            **故障可能原因：**
+
+            1. [原因]（概率 XX%）
+
+
+            **排查步骤：**
+
+            Step 1: [动作]
+
+            ⚠️ Step N: [涉及安全操作必须加警告]
+
+
+            **引用来源：**
+
+            - 📄 [文档名] 第X页  /  🔗 [URL]
+
+
+            ## 功能查询/规格说明/通用问题：
+
+            自然组织答案，保持专业性，结尾标注引用来源，无需套用故障诊断格式。
+
+
+            # 3. 引用格式
+
+            - 知识库：【来源：文档名 第X页】
+
+            - 联网：【来源：URL】
+
+
+            # 4. 多轮对话
+
+            - 追问时保持设备型号、故障类型等上下文一致
+
+            - 话题切换时直接回答新问题
+
+
+            # 5. 兜底话术
+
+            当资料不足时：说明现有资料无法完全解答，列出已找到的相关信息，建议联系厂商技术支持或查阅随机手册。
+
+
+            # 6. 安全警告
+
+            - 高压电操作：加 ⚠️ 警告
+
+            - 机械拆卸：提醒断电后操作
+
+            - 压力系统：提醒泄压后操作
+
+
+            # 7. 语言
+
+            - 默认简体中文；用户用英文提问则用英文回答
+
+            - 设备型号、报警代码等专有名词保留原始语言'
+        - id: 01abb645-f290-4d05-8e5e-b054795cdef4
+          role: user
+          text: '用户问题：{{#sys.query#}}
+
+
+            --- 知识库检索结果 ---
+
+            {{#knowledge_retrieval.result#}}
+
+
+            请基于以上知识库内容专业回答用户的设备维修问题。'
+        structured_output_enabled: false
+      type: custom
+      width: 241
+      height: 115
+      zIndex: 0
+      position:
+        x: 1300
+        y: 80
+      selected: false
+      positionAbsolute:
+        x: 1300
+        y: 80
+    - id: answer_kb
+      data:
+        desc: 输出 LLM 生成的答案
+        type: answer
+        title: 回复（知识库）
+        answer: '{{#llm_kb.text#}}'
+        selected: true
+        variables: []
+      type: custom
+      width: 241
+      height: 130
+      zIndex: 0
+      position:
+        x: 1600
+        y: 80
+      selected: true
+      positionAbsolute:
+        x: 1600
+        y: 80
+    viewport:
+      x: -837
+      y: -81
+      zoom: 1
+

@@ -1,0 +1,27 @@
+﻿source_id,title,organization,source_level,scope,url,accessed_at,http_status,copyright_note
+S001,Control of Hazardous Energy (Lockout/Tagout) - Overview,OSHA,一级,危险能量控制与上锁挂牌,https://www.osha.gov/control-hazardous-energy,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S002,29 CFR 1910.147 - The control of hazardous energy,OSHA,一级,维修作业危险能量控制要求,https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.147,2026-07-20,200,法规公开信息
+S003,Machine Guarding - Overview,OSHA,一级,机械防护与卷入、剪切、挤压风险,https://www.osha.gov/machine-guarding,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S004,29 CFR 1910.212 - General requirements for all machines,OSHA,一级,通用机械防护要求,https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.212,2026-07-20,200,法规公开信息
+S005,Electrical - Overview,OSHA,一级,电气危害、隔离与合格人员要求,https://www.osha.gov/electrical,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S006,"Welding, Cutting, and Brazing - Overview",OSHA,一级,焊接、切割、烟尘、火灾和气瓶安全,https://www.osha.gov/welding-cutting-brazing,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S007,"Crane, Derrick and Hoist Safety - Overview",OSHA,一级,起重、吊装和葫芦安全,https://www.osha.gov/cranes-derricks,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S008,Robotics - Overview,OSHA,一级,工业机器人工作区与机械防护,https://www.osha.gov/robotics,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S009,Powered Industrial Trucks - Forklifts - Overview,OSHA,一级,叉车、工业车辆与电池安全,https://www.osha.gov/powered-industrial-trucks,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S010,Confined Spaces - Overview,OSHA,一级,受限空间识别、检测和作业许可,https://www.osha.gov/confined-spaces,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S011,Pump Systems,U.S. Department of Energy,一级,泵系统可靠性、运行效率与系统优化,https://www.energy.gov/cmei/ito/pump-systems,2026-07-20,200,政府公开技术信息
+S012,Fan Systems,U.S. Department of Energy,一级,风机系统运行、维护与能效,https://www.energy.gov/cmei/ito/fan-systems,2026-07-20,200,政府公开技术信息
+S013,Compressed Air Systems,U.S. Department of Energy,一级,压缩空气系统运行、泄漏、维护与能效,https://www.energy.gov/cmei/ito/compressed-air-systems,2026-07-20,200,政府公开技术信息
+S014,Steam Systems,U.S. Department of Energy,一级,蒸汽系统运行、疏水、保温与能源回收,https://www.energy.gov/cmei/ito/steam-systems,2026-07-20,200,政府公开技术信息
+S015,Motor Systems,U.S. Department of Energy,一级,电机系统运行、维护与能效,https://www.energy.gov/cmei/ito/motor-systems,2026-07-20,200,政府公开技术信息
+S016,Bearing lubrication,SKF,二级,滚动轴承润滑选择与维护,https://www.skf.com/group/products/rolling-bearings/principles-of-rolling-bearing-selection/bearing-selection-process/bearing-lubrication,2026-07-20,200,厂商公开技术页，仅作摘要与引用
+S017,Robot Maintenance,ABB Robotics,二级,机器人预防性维护、诊断、监测和翻新,https://www.abb.com/global/en/areas/robotics/services/maintenance,2026-07-20,200,厂商公开技术页，仅作摘要与引用
+S018,Automation Maintenance Services,Rockwell Automation,二级,工业自动化预防性维护与运行风险,https://www.rockwellautomation.com/en-us/capabilities/industrial-maintenance-support.html,2026-07-20,200,厂商公开技术页，仅作摘要与引用
+S019,"Motors, Drives, Pumps, Compressors Resources",Fluke,二级,电机、驱动、泵和压缩机状态诊断,https://www.fluke.com/en-us/learn/blog/motors-drives-pumps-compressors,2026-07-20,200,厂商公开技术页，仅作摘要与引用
+S020,"Industrial Dust, Fume and Mist Technical Articles",Donaldson,二级,工业除尘、烟尘和油雾设备维护,https://www.donaldson.com/en/resources/technical-articles/,2026-07-20,200,厂商公开技术页，仅作摘要与引用
+S021,Conveyors Fundamentals,MHI,二级,输送系统分类、组成和应用边界,https://www.mhi.org/fundamentals/conveyors,2026-07-20,200,行业协会公开技术页，仅作摘要与引用
+S022,Industrial Control Systems,CISA,一级,工业控制系统安全、资产与风险管理,https://www.cisa.gov/topics/industrial-control-systems,2026-07-20,200,政府公开技术信息
+S023,Machine Guarding eTool - Presses,OSHA,一级,压力机危险区与机械防护,https://www.osha.gov/etools/machine-guarding/presses,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S024,Machine Guarding eTool - Plastics Machinery,OSHA,一级,注塑和塑料机械危险区与防护,https://www.osha.gov/etools/machine-guarding/plastics-machinery,2026-07-20,200,仅引用公开事实与链接，不复制全文
+S025,中华人民共和国特种设备安全法,中国政府网,一级,锅炉、压力容器、起重机械等特种设备安全边界,https://www.gov.cn/flfg/2013-06/30/content_2437160.htm,2026-07-20,200,法律公开信息
+S026,国家标准全文公开系统,国家市场监督管理总局、国家标准化管理委员会,一级,设备适用国家标准检索与版本核对入口,https://openstd.samr.gov.cn/bzgk/std/index,2026-07-20,200,标准状态检索入口，具体标准按公开权限使用

@@ -1,0 +1,571 @@
+# 制造业设备维修知识库智能问答平台
+
+> 基于 **RuyiDify（Dify 1.16）+ Pipeline RAG** 构建  
+> 新手从零开始，按本文档操作即可完成全部配置。
+
+---
+
+## 目录
+
+1. [平台简介](#1-平台简介)
+2. [准备工作（5 分钟）](#2-准备工作)
+3. [第一步：启动 Dify 服务](#3-第一步启动-dify-服务)
+4. [第二步：配置 API Key](#4-第二步配置-api-key)
+5. [第三步：访问平台](#5-第三步访问平台)
+6. [日常操作](#6-日常操作)
+7. [知识库管理](#7-知识库管理)
+8. [数据备份](#8-数据备份)
+9. [评测与验证](#9-评测与验证)
+10. [项目文件说明](#10-项目文件说明)
+11. [常见问题](#11-常见问题)
+12. [关键配置速查](#12-关键配置速查)
+13. [安全说明](#13-安全说明)
+
+---
+
+## 1. 平台简介
+
+本平台回答制造业设备维修问题，例如：
+- 「FANUC 0i-MF 主轴报警 SP-2003 怎么处理？」
+- 「西门子 840D sl 驱动过流怎么排查？」
+- 「2025 年最新的 ABB 机器人有哪些新功能？」
+
+**工作原理：**
+
+```
+用户提问
+  │
+  ├─ 在知识库中找到答案 ──→ 结构化故障诊断格式输出
+  │
+  └─ 知识库没有 ──→ 自动联网搜索（Tavily）──→ 基于搜索结果回答
+```
+
+**技术栈：**
+
+| 组件 | 说明 |
+|------|------|
+| Dify 1.16 | AI 应用编排平台（开源，自部署）|
+| DeepSeek-V3 | 大语言模型（通过 SiliconFlow 调用）|
+| BGE Embedding | 向量化模型，用于知识库检索 |
+| Weaviate | 向量数据库 |
+| Tavily | 联网搜索 API |
+
+---
+
+## 2. 准备工作
+
+### 需要安装的软件
+
+| 软件 | 版本要求 | 下载地址 |
+|------|---------|---------|
+| Docker Desktop | 最新版 | https://www.docker.com/products/docker-desktop |
+| Git | 任意版本 | https://git-scm.com |
+| Python | 3.10 以上 | https://www.python.org（用于运行脚本）|
+
+安装完成后，逐条运行下面的命令验证（都能打印版本号才算成功）：
+
+```bash
+docker --version
+docker compose version
+git --version
+python --version
+```
+
+> 🪟 **Windows 用户注意**：
+> - Docker Desktop 需要开启 WSL2（首次安装会引导），并在 BIOS 里开启 CPU 虚拟化。
+> - 每次启动电脑后，要先打开 Docker Desktop 应用、等左下角变绿显示 Running，`docker` 命令才可用。
+> - 涉及 `bash`/`openssl`/`crontab` 的命令，请在 **Git Bash** 或 **WSL** 里运行（PowerShell 没有这些命令）。
+
+脚本运行前，先安装 Python 依赖：
+
+```bash
+pip install -r src/requirements.txt
+```
+
+### 需要申请的 API Key（均有免费额度）
+
+#### SiliconFlow（必须）
+> 用途：驱动 DeepSeek-V3 大模型 + BGE 向量化模型
+
+1. 打开 https://siliconflow.cn → 注册账号
+2. 进入「API 密钥」→ 点击「新建 API 密钥」
+3. 复制密钥，格式为 `sk-xxxxxxxxxxxxxxxx`
+
+#### Tavily（必须）
+> 用途：知识库未命中时联网搜索，免费 1000 次/月
+
+1. 打开 https://app.tavily.com → 注册账号
+2. 登录后在 Dashboard 复制 API Key
+3. 格式为 `tvly-xxxxxxxxxxxxxxxx`
+
+### 系统要求
+
+| 资源 | 最低要求 |
+|------|---------|
+| 内存 | 8 GB（推荐 16 GB）|
+| 磁盘 | 20 GB 可用空间 |
+| 网络 | 能访问 SiliconFlow 和 Tavily |
+
+---
+
+## 3. 第一步：启动 Dify 服务
+
+### 3.1 获取项目文件
+
+本项目的 Dify 部署目录（`dify/`，含 docker-compose、nginx 配置、SSL 证书等）体积较大，**不随 Git 仓库分发**，而是打包在项目根目录的 `DifiProject.rar` 里。
+
+1. 拿到项目后，先解压 `DifiProject.rar`，得到完整的 `dify/` 目录
+2. 确认解压后存在 `dify/docker/docker-compose.yaml` 和 `dify/docker/.env`
+
+```bash
+# 进入项目目录（目录名以你实际解压/克隆得到的为准）
+cd homework
+# 解压部署包（Windows 可用 WinRAR/7-Zip 右键解压；命令行示例：）
+# 7z x DifiProject.rar   或   unrar x DifiProject.rar
+```
+
+> ⚠️ 若你要把 `DifiProject.rar` 转发给别人，请先确认包内的 `dify/docker/.env`、`nginx/conf.d/.htpasswd_plaintext`、`nginx/ssl/dify.key` 中**没有你的真实密钥/密码**，否则等于把私钥一起发出去了。安全做法：分发前把这些文件的敏感值清空或重置。
+
+### 3.2 准备 .env 文件
+
+解压后 `dify/docker/.env` 应已存在。如果没有，从模板复制一份：
+
+```bash
+# Mac/Linux
+cp deploy/.env.template dify/docker/.env
+# Windows（PowerShell）
+copy deploy\.env.template dify\docker\.env
+```
+
+打开 `dify/docker/.env`，填入 Tavily 密钥（联网搜索用）：
+
+```bash
+TAVILY_API_KEY=tvly-你的Tavily密钥
+```
+
+> 💡 **SiliconFlow 的模型密钥不在这里填**。Dify 的模型供应商是在 Web 控制台里配置的（见下方 **4.3 节**），`.env` 只保存 Tavily 等辅助配置。
+>
+> ⚠️ `.env` 文件不会被 Git 提交（已在 `.gitignore` 中），可以安全填写真实 Key。
+
+### 3.3 启动所有服务
+
+```bash
+cd dify/docker
+docker compose up -d
+```
+
+首次启动会下载镜像，**大约需要 5-10 分钟**（取决于网速）。
+
+### 3.4 确认服务正常
+
+```bash
+docker compose ps
+```
+
+所有服务显示 `Up` 或 `healthy` 即为正常：
+
+```
+docker-api-1         Up (healthy)
+docker-worker-1      Up
+docker-nginx-1       Up
+docker-web-1         Up
+docker-db_postgres-1 Up (healthy)
+docker-redis-1       Up (healthy)
+docker-weaviate-1    Up
+```
+
+---
+
+## 4. 第二步：配置 API Key
+
+> 这一步在 Dify 控制台中完成，告诉 Dify 使用哪个模型。
+
+### 4.1 登录控制台
+
+打开浏览器，访问 `https://localhost`
+
+- 浏览器会提示「证书不安全」→ 点击「高级」→「继续访问」（自签名证书，正常现象）
+- **Basic Auth 弹窗**：输入用户名和密码（见下方「登录凭据」）
+- **Dify 登录**：首次访问会进入初始化页面，自行注册管理员邮箱和密码（后续用这组账号登录控制台）
+
+### 4.2 登录凭据（两道验证）
+
+| 验证层 | 用户名 | 密码位置 |
+|--------|--------|---------|
+| Nginx Basic Auth（第一道）| `admin` | `dify/docker/nginx/conf.d/.htpasswd_plaintext` 文件中 |
+| Dify 账号（第二道）| 首次启动时自己注册的邮箱 | 初始化时自行设置 |
+
+> 📌 **务必保存 `htpasswd_plaintext` 文件中的密码**，容器重建后该文件会消失，密码丢失需重新生成。
+
+### 4.3 配置 SiliconFlow 模型供应商
+
+1. 控制台左下角 → 「设置」→「模型供应商」
+2. 找到 **SiliconFlow** → 点击「设置」→ 填入 SiliconFlow API Key（`sk-xxxxxxx`）→ 保存
+3. 回到「模型供应商」页顶部 → 「系统模型设置」，选好三类默认模型：
+   - **系统推理模型**：`deepseek-ai/DeepSeek-V3`
+   - **Embedding 模型**：`BAAI/bge-large-zh-v1.5`
+   - **Rerank 模型**（可选）：`Pro/BAAI/bge-reranker-v2-m3`
+
+> ⚠️ **必须先配好 Embedding 模型再建知识库**，否则文档上传后无法完成索引（向量化会失败）。
+
+### 4.4 创建知识库并上传文档
+
+1. 控制台顶部 → 「知识库」→ 「创建知识库」→ 建一个空知识库（可跳过上传文件，直接创建）
+2. 进入该知识库 → 「设置」/「API」页，记录两样东西：
+   - **知识库 API 密钥**：在「API 访问」页点「创建密钥」得到，形如 `dataset-xxxxxxxx`
+   - **知识库 ID（dataset-id）**：浏览器地址栏 `/datasets/<这一段就是ID>/documents` 中的那段
+3. 运行上传脚本，把本地文档批量灌入（把下面两个占位符换成你上一步记录的值）：
+
+```bash
+cd homework
+
+# Windows（PowerShell）
+$env:DIFY_KB_KEY="<你的知识库API密钥 dataset-xxxx>"
+python src/knowledge/repair_dataset.py `
+  --base-url https://localhost/v1 `
+  --dataset-id <你的知识库ID> `
+  --knowledge-root 制造业设备维修知识库 `
+  --data-root data
+
+# Mac/Linux
+DIFY_KB_KEY="<你的知识库API密钥 dataset-xxxx>" \
+  python src/knowledge/repair_dataset.py \
+  --base-url https://localhost/v1 \
+  --dataset-id <你的知识库ID> \
+  --knowledge-root 制造业设备维修知识库 \
+  --data-root data
+```
+
+> 💡 脚本走 Nginx 的 `https://localhost/v1`（自签证书，脚本已默认跳过证书校验）。上传完成后，知识库页面应显示全部文档 **completed**（本项目参考数量约 102 个）。
+>
+> ⚠️ `repair_dataset.py` 会校验 `制造业设备维修知识库/` 下恰好有 **12 个分类目录**，并额外上传 `data/pdfs/` 里的两个 PDF 手册。若你 clone 得到的项目缺少 `data/pdfs/`（该目录默认不入库），请先把对应 PDF 放进去，或改用 `sync_knowledge_base.py`（见第 7 节）只上传你自己的文档。
+
+### 4.5 导入 Workflow（问答应用）
+
+1. 控制台顶部 → 「工作室」→ 右上角「创建应用」→「导入 DSL 文件」
+2. 选择项目中的 `src/workflow/chatflow-dsl.yml`
+3. 导入后打开 Workflow 编辑器，做两处替换：
+   - **关联知识库**：点「知识检索」节点 → 选中你在 4.4 创建的知识库
+   - **填 Tavily Key**：点 `tavily_search`（HTTP Request）节点 → 在 Body 里把字符串 `REPLACE_TAVILY_KEY` 替换为真实的 Tavily 密钥
+4. 点击右上角「发布」
+
+---
+
+## 5. 第三步：访问平台
+
+### 5.1 对话界面
+
+发布应用后，在应用页点「访问 WebApp / 发布 → 运行」即可得到对话链接，形如 `https://localhost/chat/<你的AppID>`。
+
+| 地址 | 说明 |
+|------|------|
+| `https://localhost/chat/<你的AppID>` | 本机访问 |
+| `https://<本机局域网IP>/chat/<你的AppID>` | 局域网其他设备（用 `ipconfig`/`ifconfig` 查本机 IP） |
+
+> 访问前需通过 Basic Auth（见 4.2）。`<你的AppID>` 在发布后的分享链接里，每个应用各不相同。
+
+### 5.2 验证平台工作正常
+
+在对话框里输入以下问题，验证两条路径：
+
+**验证知识库路径**（应 6-10 秒出现第一个字）：
+```
+FANUC 0i-MF 主轴报警 SP-2003 怎么处理？
+```
+
+**验证联网路径**（应 10-20 秒出现第一个字）：
+```
+2025 年发布的 FANUC iHMI 系统有哪些新功能？
+```
+
+两条路径都能正常回答，平台配置完成 ✅
+
+---
+
+## 6. 日常操作
+
+### 启动服务
+
+```bash
+cd dify/docker
+docker compose up -d
+```
+
+### 停止服务
+
+```bash
+cd dify/docker
+docker compose down
+```
+
+### 查看服务状态
+
+```bash
+cd dify/docker
+docker compose ps
+```
+
+### 查看日志（排查问题）
+
+```bash
+# 查看 API 服务日志
+docker logs docker-api-1 --tail 50
+
+# 查看 Nginx 日志
+docker logs docker-nginx-1 --tail 50
+
+# 查看 Worker 日志（知识库索引任务）
+docker logs docker-worker-1 --tail 50
+```
+
+---
+
+## 7. 知识库管理
+
+### 查看当前知识库状态
+
+在容器内直接查（把 `<知识库API密钥>` 和 `<知识库ID>` 换成你的值）：
+
+```bash
+docker exec docker-api-1 python3 -c "
+import requests
+s = requests.Session(); s.trust_env = False
+s.headers['Authorization'] = 'Bearer <知识库API密钥>'
+r = s.get('http://127.0.0.1:5001/v1/datasets/<知识库ID>/documents',
+          params={'limit': 1}, timeout=30)
+data = r.json()
+print(f'知识库文档数: {data[\"total\"]}')
+"
+```
+
+### 添加新设备手册
+
+1. 将 PDF 文件放入 `data/new-manuals/` 目录
+2. 运行同步脚本：
+
+```bash
+cd homework
+
+# Windows（PowerShell）
+$env:DIFY_KB_KEY="<你的知识库API密钥>"
+python src/knowledge/sync_knowledge_base.py --watch-dir data/new-manuals
+
+# Mac/Linux
+DIFY_KB_KEY="<你的知识库API密钥>" \
+  python src/knowledge/sync_knowledge_base.py --watch-dir data/new-manuals
+```
+
+脚本会自动：跳过已存在文档 → 上传新文件 → 等待索引完成 → 报告结果。
+
+> 详见 [docs/KNOWLEDGE_BASE_GUIDE.md](docs/KNOWLEDGE_BASE_GUIDE.md) — 包含厂商手册下载地址和预处理方法。
+
+### 修复索引错误文档
+
+```bash
+DIFY_KB_KEY="<你的知识库API密钥>" \
+  python src/knowledge/repair_dataset.py \
+  --base-url https://localhost/v1 \
+  --dataset-id <你的知识库ID> \
+  --knowledge-root 制造业设备维修知识库 \
+  --data-root data
+```
+
+---
+
+## 8. 数据备份
+
+> ⚠️ 重要：容器数据存储在 Docker 卷中，`docker compose down -v` 会**永久删除**所有数据。务必定期备份。
+
+### 手动备份
+
+```bash
+cd homework
+bash src/scripts/backup.sh
+```
+
+备份文件保存在 `backups/YYYYMMDD_HHMMSS/`，自动保留最近 7 份。
+
+### 设置自动备份（每天凌晨 2 点）
+
+```bash
+# 编辑 crontab
+crontab -e
+
+# 添加这一行（修改路径为实际路径）
+0 2 * * * cd /path/to/homework && bash src/scripts/backup.sh >> backup.log 2>&1
+```
+
+### 从备份恢复
+
+```bash
+# 恢复 PostgreSQL
+docker exec -i docker-db_postgres-1 pg_restore \
+  -U postgres -d dify < backups/YYYYMMDD_HHMMSS/postgres_dify.dump
+
+# 恢复 Weaviate（需先停止服务）
+cd dify/docker && docker compose down
+tar -xzf backups/YYYYMMDD_HHMMSS/weaviate_data.tar.gz -C volumes/weaviate/
+docker compose up -d
+```
+
+---
+
+## 9. 评测与验证
+
+运行 20 题自动评测，检验平台回答质量：
+
+```bash
+cd homework
+
+# Windows（PowerShell）
+$env:DIFY_APP_KEY="<你的Service API密钥 app-xxxx>"
+python src/knowledge/eval_chatflow.py `
+  --base-url https://localhost/v1 `
+  --questions data/eval_questions.csv `
+  --output data/eval_results.json
+
+# Mac/Linux
+DIFY_APP_KEY="<你的Service API密钥 app-xxxx>" \
+  python src/knowledge/eval_chatflow.py \
+  --base-url https://localhost/v1 \
+  --questions data/eval_questions.csv \
+  --output data/eval_results.json
+```
+
+**基准结果（2026-07-22，DeepSeek-V3）：**
+
+| 指标 | 结果 |
+|------|------|
+| 总成功率 | 20/20（100%）|
+| 关键词覆盖率 | 100% |
+| 引用来源标注率 | 100% |
+| 流式首字响应 | 6.8s |
+| 平均总响应时间 | ~40s |
+
+---
+
+## 10. 项目文件说明
+
+```
+homework/
+├── README.md                             # 本文件
+├── .gitignore                            # 不入库的文件列表
+│
+├── dify/docker/                          # Dify 部署目录（核心）
+│   ├── docker-compose.yaml               # 官方 Compose（不要修改）
+│   ├── docker-compose.override.yaml      # 自定义配置（资源限制、日志轮转）
+│   ├── .env                              # ⚠️ 环境变量和 API Key（不入库）
+│   └── nginx/
+│       ├── conf.d/rate_limit.conf        # Nginx：Rate Limiting + Basic Auth + HTTPS
+│       ├── conf.d/.htpasswd              # Basic Auth 密码哈希（不入库）
+│       ├── conf.d/.htpasswd_plaintext    # ⚠️ Basic Auth 明文密码（不入库，务必备份！）
+│       └── ssl/dify.crt + dify.key       # 自签名 TLS 证书（不入库）
+│
+├── src/
+│   ├── workflow/
+│   │   ├── chatflow-dsl.yml              # Workflow 完整配置（可导入 Dify 重建）
+│   │   └── system-prompt.txt            # LLM 系统提示词
+│   ├── knowledge/
+│   │   ├── sync_knowledge_base.py       # 新手册自动上传脚本 ← 常用
+│   │   ├── repair_dataset.py            # 修复索引错误脚本
+│   │   ├── eval_chatflow.py             # 20 题评测脚本
+│   │   └── upload_to_dify.py            # 单文件上传脚本
+│   └── scripts/
+│       └── backup.sh                    # 数据备份脚本 ← 定期运行
+│
+├── data/
+│   ├── eval_questions.csv               # 评测题目（20 题）
+│   ├── eval_results.json                # 最新评测结果
+│   ├── CNC故障案例集.md                  # 知识库源文件
+│   ├── new-manuals/                     # 放新 PDF 手册的目录（上传前暂存）
+│   └── pdfs/                            # 已有设备手册 PDF（不入库）
+│
+├── 制造业设备维修知识库/                  # 12 类设备，约 93 个 MD 文件（+data 下补充文档共约 102 个）
+│   ├── 00_通用安全与维修方法/
+│   ├── 01_机床与数控设备/
+│   ├── ... （02-11 各设备大类）
+│   └── 12_除尘环保与公用工程/
+│
+└── docs/
+    └── KNOWLEDGE_BASE_GUIDE.md          # 真实手册获取与上传完整指南
+```
+
+---
+
+## 11. 常见问题
+
+**Q：浏览器提示「证书不安全」**  
+A：正常现象，使用的是自签名证书。点击「高级」→「继续访问 localhost」。
+
+**Q：弹出 Basic Auth 登录框，用户名密码是什么？**  
+A：用户名 `admin`，密码在 `dify/docker/nginx/conf.d/.htpasswd_plaintext` 文件里。
+
+**Q：登录 Dify 控制台的账号密码是什么？**  
+A：首次启动后访问 `https://localhost` 会进入初始化页面，由你自行注册管理员邮箱和密码。之后用这组自己设置的账号登录即可（不同的人部署就是各自注册的账号）。
+
+**Q：启动后 `docker compose ps` 有容器一直 `starting`**  
+A：首次启动需要时间初始化数据库，等待 1-2 分钟后再检查。如果超过 5 分钟还没好，运行 `docker logs docker-api-1 --tail 30` 查看错误。
+
+**Q：对话没有响应 / 报错**  
+A：按顺序排查：
+1. 检查 SiliconFlow API Key 是否在控制台「模型供应商」中配置（步骤 4.3）
+2. 检查 `docker compose ps` 所有服务是否 `Up`
+3. 查看 `docker logs docker-api-1 --tail 50` 找具体错误
+
+**Q：知识库文档数量变少了**  
+A：运行修复脚本（见第 7 节「修复索引错误文档」）。
+
+**Q：`.htpasswd_plaintext` 文件不见了**  
+A：容器重建后该文件会丢失。需要重新生成：
+```bash
+cd dify/docker
+# 设置新密码（替换 新密码）
+PASS="新密码"
+HASH=$(openssl passwd -apr1 "$PASS")
+echo "admin:$HASH" > nginx/conf.d/.htpasswd
+echo "admin:$PASS" > nginx/conf.d/.htpasswd_plaintext
+docker compose restart nginx
+```
+
+---
+
+## 12. 关键配置速查
+
+> 📌 下表中带「你的」字样的值都是**每个部署实例各不相同**的，需在自己的 Dify 控制台里获取，不能照抄。
+
+| 配置项 | 值 / 获取方式 |
+|--------|-----|
+| 知识库 ID | 知识库页面 URL `/datasets/<这一段>/documents` |
+| 知识库 API Key | 知识库 →「API 访问」→ 创建密钥，形如 `dataset-xxxx` |
+| Service API Key | 应用 →「访问 API」→ 创建密钥，形如 `app-xxxx` |
+| LLM 模型 | `deepseek-ai/DeepSeek-V3`（via SiliconFlow）|
+| Embedding 模型 | `BAAI/bge-large-zh-v1.5`（via SiliconFlow）|
+| Rerank 模型 | `Pro/BAAI/bge-reranker-v2-m3`（via SiliconFlow，可选）|
+| WebApp 对话地址 | 应用发布后的分享链接 `https://localhost/chat/<AppID>` |
+| Dify 控制台 | `https://localhost` |
+| Dify 控制台账号 | 首次初始化时自行注册 |
+| Basic Auth 用户名 | `admin` |
+| Basic Auth 密码位置 | `dify/docker/nginx/conf.d/.htpasswd_plaintext` |
+
+---
+
+## 13. 安全说明
+
+以下文件**不会**被 Git 提交（已在 `.gitignore`），但本地必须妥善保管：
+
+| 文件 | 内容 | 丢失后果 |
+|------|------|---------|
+| `dify/docker/.env` | SiliconFlow / Tavily API Key | 服务无法调用模型 |
+| `dify/docker/nginx/conf.d/.htpasswd_plaintext` | Basic Auth 明文密码 | 无法登录 WebApp |
+| `dify/docker/nginx/ssl/dify.key` | TLS 私钥 | HTTPS 失效 |
+
+**其他注意事项：**
+- 知识库 API Key 不要硬编码进脚本，始终通过 `DIFY_KB_KEY` 环境变量传入
+- 定期运行 `bash src/scripts/backup.sh` 备份数据库
+- `data/pdfs/` 下的设备手册 PDF 不入库（体积大，可能含版权内容）
+
+---
+
+## License
+
+MIT

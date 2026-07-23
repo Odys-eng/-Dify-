@@ -1,0 +1,68 @@
+# ============================================================
+# .gitignore
+# ============================================================
+
+# --- 敏感文件（含真实 API Key）---
+.env
+*.env
+!deploy/.env.template
+!**/.env.template
+key.txt
+*.key
+*_key.txt
+
+# --- 数据文件（体积大 / 厂商版权 PDF，不入库）---
+data/pdfs/
+data/metadata/
+data/new-manuals/
+
+# --- Agent 工作草稿（内部记录，不公开）---
+.workbuddy/
+docs/superpowers/
+
+# --- 自动生成的报告 ---
+reports/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# --- IDE / Agent 本地配置（含本地权限记录、可能含密钥）---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.claude/
+*.release-bak
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Dify 克隆目录（不入库）---
+dify/
+
+# --- 临时文件 ---
+*.tmp
+*.log
+*.bak
+
+# --- 归档/大文件（含项目整包，可能打包了 .env 与密钥，禁止入库）---
+*.rar
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+DifiProject.rar
+
+# --- 备份目录 ---
+backups/

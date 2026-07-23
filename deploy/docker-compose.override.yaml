@@ -1,0 +1,81 @@
+﻿# ============================================================
+# docker-compose.override.yaml
+# ============================================================
+# 文件路径：deploy/docker-compose.override.yaml
+# 用途：基于 Dify 社区版官方 docker-compose.yaml 的扩展配置
+#       添加 DeepSeek/Tavily 环境变量传递 + 资源限制
+#
+# 使用方式：
+#   1. 将此文件复制到 dify/docker/ 目录下（与官方 docker-compose.yaml 同级）
+#   2. Docker Compose 会自动合并 override 文件（文件名必须为 docker-compose.override.yaml）
+#   3. 官方文档：https://docs.dify.ai/self-host/deploy/configuration/environments
+#
+# 与 PRD 7.3 节对照：
+#   - PRD 要求配置 DeepSeek 和 Tavily 环境变量 ✅
+#   - PRD 要求配置资源限制 ✅
+#   ⚠️ 差异：DEEPSEEK_API_KEY 不会自动配置 Dify 模型供应商
+#      仍需在 Dify Web UI「设置 → 模型供应商」手动配置（见部署检查清单步骤 1）
+# ============================================================
+
+services:
+  # API 服务 - Dify 后端核心
+  api:
+    environment:
+      # DeepSeek API 配置（通过 OpenAI 兼容接口接入）
+      # 用途：供自定义工具和日志排查引用，模型供应商仍需在 Web UI 配置
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_API_BASE=https://api.deepseek.com
+      - DEEPSEEK_MODEL=deepseek-v4-flash
+      # Tavily 搜索 API（自定义工具引用）
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+
+  # Worker 服务 - 异步任务处理（知识库向量化等）
+  worker:
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_API_BASE=https://api.deepseek.com
+      - DEEPSEEK_MODEL=deepseek-v4-flash
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+
+  # Web 前端 - Dify 控制台 UI
+  web:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  # Weaviate 向量数据库 - 存储手册切片向量
+  weaviate:
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+
+  # PostgreSQL - Dify 元数据存储
+  db_postgres:
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+
+  # Redis - 缓存与消息队列
+  redis:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+

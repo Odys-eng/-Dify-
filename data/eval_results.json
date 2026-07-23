@@ -1,0 +1,341 @@
+{
+  "summary": {
+    "total": 20,
+    "ok": 16,
+    "errors": 4,
+    "avg_elapsed_s": 80.16,
+    "avg_kw_coverage": 1.0,
+    "fault_structure_rate": 0,
+    "citation_rate": 1.0
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "category": "机床与数控设备",
+      "question": "CNC加工中心换刀故障换刀臂停在中间位置怎么排查？",
+      "expected_path": "kb",
+      "notes": "气缸",
+      "answer_preview": "<think>\n我们被问到：“CNC加工中心换刀故障换刀臂停在中间位置怎么排查？”知识库检索结果有两个片段，一个是“故障现象 CNC 加工中心在自动换刀过程中报警，刀库无法正常旋转，换刀臂停在中间位置不动作。”另一个是“案例 1：加工中心换刀故障”。但这两个片段都没有提供具体的排查步骤或原因。知识库内容似乎不完整，可能只有标题和现象描述，没有详细的诊断信息。\n\n根据指令，我们需要严格基于知识库内容回答，如果知识库内容不足，则说明现有资料无法完全解答，列出已找到的相关信息，建议联系厂商技术支持或查阅随机手册。但这里知识库结果非空，但内容非常有限。我们需要判断：知识库结果非空时优先使用知识库内容，",
+      "elapsed_s": 71.15,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "换刀臂"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q02",
+      "category": "机床与数控设备",
+      "question": "数控机床日常点检包括哪些项目？",
+      "expected_path": "kb",
+      "notes": "润滑",
+      "answer_preview": "<think>\n嗯，用户的问题是“数控机床日常点检包括哪些项目？”。这是一个功能查询/规格说明/通用问题。\n\n我需要根据提供的联网搜索结果来组织答案。搜索结果里有多篇文章，内容比较一致，都提到了点检管理的“十定”原则，以及日常点检是由操作人员负责的。但是，搜索结果并没有直接列出具体的日常点检项目清单，比如“检查冷却液液位”这种。\n\n所以，我的回答需要基于这些结果来构建。我可以先说明日常点检的定义和责任人，这是资料里明确提到的。然后，我可以根据点检管理的“定点、定项”等原则，结合我的专业知识，列举一些典型的、通用的日常点检项目，比如润滑、液压、冷却、电气、机械外观和安全防护这些方面。这样既能严格",
+      "elapsed_s": 63.57,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "点检"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q03",
+      "category": "电机伺服与变频器",
+      "question": "伺服电机编码器SV0443报警怎么处理？",
+      "expected_path": "kb",
+      "notes": "电池",
+      "answer_preview": "<think>\n我们被问到：“伺服电机编码器SV0443报警怎么处理？”知识库检索结果提供了一个片段，来自“CNC故障案例集.md”，内容为：“故障现象 FANUC 系统出现 SV0443 报警（编码器电池电压低），或 SV0440（编码器通信异常）。机床在某些角度位置出现抖动，加工精度下降。”\n\n我们需要基于这个知识库内容回答。注意，用户问的是“SV0443报警怎么处理”，知识库片段只给出了故障现象，没有给出处理步骤。但根据角色要求，我们需要严格基于知识库内容回答，不编造资料中未出现的信息。如果知识库内容不足，我们可以说明现有资料无法完全解答，列出已找到的相关信息，建议联系厂商技术支持或查阅",
+      "elapsed_s": 56.61,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "编码器"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q04",
+      "category": "液压与气动系统",
+      "question": "液压系统压力波动导致掉刀的原因是什么？",
+      "expected_path": "kb",
+      "notes": "溢流阀",
+      "answer_preview": "<think>\n我们需要根据用户问题“液压系统压力波动导致掉刀的原因是什么？”来回答。注意：用户问题中提到“掉刀”，这通常是指数控机床加工中心换刀或主轴抓刀时刀具掉落。但搜索结果中出现了“水刀”（水切割）和“液压筒夹”等。我们需要结合搜索结果，但也要保持专业性，可能不仅仅是水刀。不过，搜索结果给出了液压系统压力波动大的原因，以及水刀掉压，还有液压筒夹夹持力不足导致掉刀。我们需要将这些信息整合，给出针对“液压系统压力波动导致掉刀”的可能原因和排查步骤。\n\n由于知识库无匹配，我们使用联网搜索结果。结果中：\n1. 搜狐文章：水刀压力波动大，掉压厉害怎么修-水刀维修师傅，提到单向阀组件失效。\n2. n",
+      "elapsed_s": 74.23,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "液压"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q05",
+      "category": "配电PLC与仪表",
+      "question": "PLC STOP报警所有轴无法移动怎么处理？",
+      "expected_path": "kb",
+      "notes": "电源",
+      "answer_preview": "<think>\n我们被问到：“PLC STOP报警所有轴无法移动怎么处理？” 知识库检索结果提供了一个故障案例集片段，描述了故障现象：“机床操作面板显示 'PLC STOP' 或 'PLC 通讯异常'，所有轴无法移动。重新上电后偶尔恢复正常。” 但没有提供具体原因和排查步骤。我们需要基于这个片段，结合专业知识，给出故障诊断类回答。由于知识库内容有限，我们需要补充一些通用的PLC STOP报警处理思路，但必须严格基于知识库内容，不能编造资料中未出现的信息。然而，知识库片段只描述了现象，没有给出原因和步骤。根据角色要求：“严格基于知识库检索结果或联网搜索结果回答，不编造资料中未出现的信息”。但知识",
+      "elapsed_s": 76.71,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "PLC"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q06",
+      "category": "工业机器人与自动化单元",
+      "question": "工业机器人日常点检项目有哪些？",
+      "expected_path": "kb",
+      "notes": "点检",
+      "answer_preview": "<think>\n我们被问到：“工业机器人日常点检项目有哪些？” 知识库检索结果提供了一个文档片段，标题为“工业机器人与自动化单元：日常点检”，但内容似乎只是元数据，没有具体的点检项目列表。片段内容显示的是文档的元数据，如条目编号、设备类别、主题类型等，但没有具体的点检项目内容。可能知识库只返回了文档的标题和元数据，没有返回正文。我们需要基于这个结果来回答。根据指令，知识库结果非空时优先使用知识库内容。但这里知识库内容似乎不完整，没有具体的点检项目。我们需要检查是否还有其他片段？但只提供了一个片段，且内容只是元数据。可能知识库检索只返回了文档的头部信息，没有返回具体内容。根据兜底话术：当资料不足",
+      "elapsed_s": 111.16,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "机器人"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q07",
+      "category": "锅炉换热与热处理设备",
+      "question": "换热器结垢导致换热效率下降如何诊断？",
+      "expected_path": "kb",
+      "notes": "结垢",
+      "answer_preview": "ERROR: HTTPConnectionPool(host='localhost', port=80): Read timed out. (read timeout=120)",
+      "elapsed_s": 0.0,
+      "status": "ERROR"
+    },
+    {
+      "id": "Q08",
+      "category": "起重升降与搬运设备",
+      "question": "行车吊钩限位开关失效的危险是什么？",
+      "expected_path": "kb",
+      "notes": "限位",
+      "answer_preview": "<think>\n我们被问到：“行车吊钩限位开关失效的危险是什么？” 知识库无匹配，使用联网搜索结果。根据提供的搜索结果，我们需要组织一个专业回答，遵循故障诊断类结构，因为这是关于失效危险的问题，类似故障诊断。但问题本身是询问危险，而不是排查步骤。我们可以将其视为一个安全警告类问题。按照指示，答案结构根据问题类型自动选择。故障诊断类（报警代码、设备异常、维修故障）有特定格式，但这里问的是“危险是什么”，更偏向于安全知识。不过我们可以用故障诊断类格式来回答其可能原因和排查步骤？实际上问题只是问危险，但我们也可以提供一些排查或处理建议。根据搜索结果，我们总结危险，然后给出建议。兜底话术不需要，因为资",
+      "elapsed_s": 89.48,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "行车"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q09",
+      "category": "泵风机与空压机",
+      "question": "离心泵汽蚀现象如何识别和预防？",
+      "expected_path": "kb",
+      "notes": "泵",
+      "answer_preview": "ERROR: HTTPConnectionPool(host='localhost', port=80): Read timed out. (read timeout=120)",
+      "elapsed_s": 0.0,
+      "status": "ERROR"
+    },
+    {
+      "id": "Q10",
+      "category": "输送传动与减速设备",
+      "question": "减速机漏油的常见原因是什么？",
+      "expected_path": "kb",
+      "notes": "漏油",
+      "answer_preview": "<think>\n我们需要基于提供的联网搜索结果来回答“减速机漏油的常见原因是什么？”。问题属于故障诊断类，需要按照故障诊断类结构回答，包括故障可能原因、排查步骤、引用来源。由于是联网搜索结果，需要引用URL。\n\n分析联网搜索结果，提取常见原因：\n\n- 结果1: 密封件磨损或老化（油封、O型圈等），润滑油过多。\n- 结果2: 检查孔盖板太薄变形，铸件未退火消除内应力导致变形，加工精度不良等。\n- 结果3: 铸件未退火或时效处理，存在砂眼、夹渣、气孔、裂纹等缺陷，加工精度不良。\n- 结果4: 内容很多，包括：检查孔盖板太薄变形；铸件未退火变形；箱体无回油槽导致润滑油积聚；轴封结构设计不合理（早期油",
+      "elapsed_s": 114.31,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "减速机"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q11",
+      "category": "注塑冲压与成型设备",
+      "question": "注塑机料筒温度失控如何排查？",
+      "expected_path": "kb",
+      "notes": "料筒",
+      "answer_preview": "<think>\n好的，用户问的是注塑机料筒温度失控怎么排查，这是一个典型的故障诊断类问题。我需要基于提供的联网搜索结果来回答。\n\n嗯，我得先看看搜索结果里有什么。结果1是百度百科的一篇指南，提到显示999℃可能是温度模块通讯故障，建议断电重启和检查热电偶接线端子。这个信息很直接，可以作为故障可能原因之一。\n\n结果2内容很长，是65种注塑缺陷的处理手册，里面提到了料筒温度设定不合理会导致问题，还有处理方法。虽然不完全是针对温度失控的排查，但提到了加热系统失控要检查热电偶、发热圈，还有液压系统油温的影响。这些可以作为排查步骤的参考。\n\n结果3讲的是注塑机料筒温度控制原理，提到电阻加热、大惯量、电源",
+      "elapsed_s": 74.69,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "注塑"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q12",
+      "category": "除尘环保与公用工程",
+      "question": "袋式除尘器压差过高的原因和处理方法？",
+      "expected_path": "kb",
+      "notes": "压差",
+      "answer_preview": "<think>\n我们需要基于联网搜索结果来回答“袋式除尘器压差过高的原因和处理方法？”。注意：知识库无匹配，所以使用联网搜索结果。我们需要按照故障诊断类格式来组织答案，因为这是故障诊断类问题（设备异常）。答案结构应包括故障可能原因、排查步骤、引用来源，并注意安全警告（如果有的话）。但袋式除尘器可能涉及高压电、机械等，但通常除尘器压差高不直接涉及高压电，但检查时可能需要断电等。我们根据搜索到的信息来组织。\n\n首先，分析搜索结果：\n- 结果1：网易文章“除尘器压差大原因及处理”，提到粉尘浓度过高、滤风速度过高，对策是减小除尘负荷等。\n- 结果2：“布袋除尘器压差高有几种原因及解决办法”，提到滤袋破",
+      "elapsed_s": 96.5,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "除尘"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q13",
+      "category": "通用安全",
+      "question": "设备维修上锁挂牌LOTO程序是什么？",
+      "expected_path": "kb",
+      "notes": "挂牌",
+      "answer_preview": "<think>\n我们需要根据用户问题“设备维修上锁挂牌LOTO程序是什么？”回答。用户要求基于联网搜索结果。搜索结果提供了多个来源，包括Facebook、EHS Wiki、多恩技术网站、eworkorders、知乎等。我们需要提取关键信息，给出专业回答。由于这是功能查询/规格说明/通用问题，不需要套用故障诊断格式，但需要自然组织答案，保持专业性，结尾标注引用来源。\n\n首先，回顾搜索结果内容：\n- 第一个结果：Facebook帖子，提到LOTO是Lockout/Tagout缩写，上锁挂牌是工业安全程序，防止意外启动或释放能量。\n- 第二个结果：EHS Wiki，提到LOTO作为安全管理技术手段，",
+      "elapsed_s": 67.29,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "上锁"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q14",
+      "category": "跨知识库",
+      "question": "主轴轴承径向跳动标准值是多少？",
+      "expected_path": "kb",
+      "notes": "0.005mm",
+      "answer_preview": "<think>\n我们需要基于联网搜索结果回答“主轴轴承径向跳动标准值是多少？”。注意：用户问题是中文，所以用中文回答。问题属于故障诊断类吗？实际上是一个标准值查询，属于功能查询/规格说明/通用问题。因此不需要套用故障诊断格式，自然组织答案，保持专业性，结尾标注引用来源。\n\n我们需要从搜索结果中提取相关信息。结果中有多个来源：\n\n- 结果1：离心风机主轴跳动正常范围，说径向跳动通常应控制在0.05mm以内，轴向跳动不超过0.1mm。这是针对离心风机，但主轴轴承可能类似。\n- 结果2：轴承的跳动范围应该控制在多少，提到P0级径向跳动≤8μm，轴向跳动≤5μm；P6级径向跳动≤3μm，轴向跳动≤2μ",
+      "elapsed_s": 65.46,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "径向跳动"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q15",
+      "category": "超出知识库",
+      "question": "2025年发布的FANUC iHMI有哪些新功能？",
+      "expected_path": "tavily",
+      "notes": "iHMI",
+      "answer_preview": "<think>\n我们需要基于用户问题“2025年发布的FANUC iHMI有哪些新功能？”来组织回答。注意：用户的问题是功能查询/规格说明/通用问题，不需要套用故障诊断格式。但是联网搜索结果中并没有直接提到FANUC iHMI的新功能。搜索结果中有一个“answer”字段，但那是系统生成的简要回答，而且内容非常笼统：“The FANUC iHMI released in 2025 introduced enhanced user interface capabilities and improved automation features. It also supported advanced",
+      "elapsed_s": 43.44,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "FANUC"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q16",
+      "category": "超出知识库",
+      "question": "西门子S7-1500 PLC与S7-300的主要区别？",
+      "expected_path": "tavily",
+      "notes": "S7-300",
+      "answer_preview": "<think>\n我们被问到：“西门子S7-1500 PLC与S7-300的主要区别？”并提供了联网搜索结果。我们需要基于这些结果给出专业回答。由于是功能查询/规格说明类问题，不需要套用故障诊断格式，但需要保持专业性，结尾标注引用来源。\n\n从搜索结果中，我们主要看到来自RealPars的视频和博客，以及一个知乎文章（但知乎文章似乎只关注通讯方面）。RealPars的内容详细比较了两者，包括发布时间、性能、接口、显示、编程软件等。\n\n我们需要组织一个专业回答，涵盖主要区别。可以包括：\n- 发布时间和代际关系\n- 性能：更快的背板总线、内置PROFINET接口、更短的反应时间\n- 显示和诊断：S7-",
+      "elapsed_s": 106.51,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "S7-1500"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q17",
+      "category": "超出知识库",
+      "question": "ABB机器人IRB6700的最大负载是多少公斤？",
+      "expected_path": "tavily",
+      "notes": "负载",
+      "answer_preview": "<think>\n嗯，用户问的是ABB机器人IRB6700的最大负载是多少公斤，这是一个功能查询/规格说明类问题，不是故障诊断类。我需要根据联网搜索结果来回答。\n\n根据联网搜索结果，我可以看到多个来源都提到了IRB 6700系列的负载范围。其中第一个结果提到“负载在 150 至 300 kg 之间”，第二个结果也提到“负载为150kg 至 300kg”，第三个结果同样显示“负载为150kg 至 300kg”。这些信息是一致的。\n\n具体到最大负载，多个型号列表中都有IRB 6700-300/2.70这个型号，其负载能力为300 kg。搜索结果中明确提到“The ABB IRB 6700 robot",
+      "elapsed_s": 41.87,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "IRB6700"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q18",
+      "category": "模糊问题",
+      "question": "机器异常有什么原因？",
+      "expected_path": "kb_or_tavily",
+      "notes": "建议",
+      "answer_preview": "ERROR: HTTPConnectionPool(host='localhost', port=80): Read timed out. (read timeout=120)",
+      "elapsed_s": 0.0,
+      "status": "ERROR"
+    },
+    {
+      "id": "Q19",
+      "category": "多轮对话第1轮",
+      "question": "FANUC 0i-MF主轴报警SP-2003怎么处理？",
+      "expected_path": "kb",
+      "notes": "主轴",
+      "answer_preview": "<think>\n我们被问到：“FANUC 0i-MF主轴报警SP-2003怎么处理？”知识库检索结果提供了两个片段：\n\n片段1：故障现象，关于主轴高速异响，无报警代码。不直接相关。\n\n片段2：FANUC 0i-MF 常见报警代码表，其中包含 SP-2003：含义“主轴报警”，常见原因“主轴电机过载/传感器异常”。\n\n我们需要基于这些信息提供专业回答。由于知识库内容有限，我们只能给出一般性指导。根据角色要求，我们需要严格基于知识库内容，如果不足，可以说明现有资料无法完全解答，列出已找到的相关信息，建议联系厂商等。\n\n但这里知识库有直接信息：SP-2003 是主轴报警，常见原因是主轴电机过载/传感",
+      "elapsed_s": 129.56,
+      "status": "OK",
+      "kw_coverage": 1.0,
+      "kw_hits": [
+        "SP-2003"
+      ],
+      "has_structure": null,
+      "has_citation": true,
+      "non_empty": true,
+      "has_fallback": null
+    },
+    {
+      "id": "Q20",
+      "category": "多轮对话第2轮",
+      "question": "如果是主轴电机问题具体怎么判断？",
+      "expected_path": "kb",
+      "notes": "电流",
+      "answer_preview": "ERROR: API error 400: {\"code\":\"invalid_param\",\"message\":\"Run failed: [models] Server Unavailable Error, HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Max retries exceeded with url: \\/v1\\/embeddings (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in vi",
+      "elapsed_s": 0.0,
+      "status": "ERROR"
+    }
+  ]
+}

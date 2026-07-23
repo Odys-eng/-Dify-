@@ -1,0 +1,14 @@
+{
+  "dataset_id": "b7e138c1-1628-4996-b6ba-a093fbed5a1b",
+  "dataset_name": "制造业设备维修综合知识库",
+  "indexing_technique": "high_quality",
+  "total_assets": 92,
+  "created_documents": 1,
+  "skipped_documents": 90,
+  "retried_documents": 1,
+  "reindexed_documents": 0,
+  "status_counts": {
+    "completed": 92
+  },
+  "completed_at": "2026-07-20T20:37:10+0800"
+}
