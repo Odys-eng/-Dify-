@@ -25,7 +25,7 @@ services:
       # 用途：供自定义工具和日志排查引用，模型供应商仍需在 Web UI 配置
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - DEEPSEEK_API_BASE=https://api.deepseek.com
-      - DEEPSEEK_MODEL=deepseek-v4-flash
+      - DEEPSEEK_MODEL=deepseek-v4-pro
       # Tavily 搜索 API（自定义工具引用）
       - TAVILY_API_KEY=${TAVILY_API_KEY}
     deploy:
@@ -39,7 +39,7 @@ services:
     environment:
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - DEEPSEEK_API_BASE=https://api.deepseek.com
-      - DEEPSEEK_MODEL=deepseek-v4-flash
+      - DEEPSEEK_MODEL=deepseek-v4-pro
       - TAVILY_API_KEY=${TAVILY_API_KEY}
     deploy:
       resources:

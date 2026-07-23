@@ -45,7 +45,7 @@
 | 组件 | 说明 |
 |------|------|
 | Dify 1.16 | AI 应用编排平台（开源，自部署）|
-| DeepSeek-V3 | 大语言模型（通过 SiliconFlow 调用）|
+| DeepSeek-V4-Pro | 大语言模型（通过 SiliconFlow 调用）|
 | BGE Embedding | 向量化模型，用于知识库检索 |
 | Weaviate | 向量数据库 |
 | Tavily | 联网搜索 API |
@@ -85,7 +85,7 @@ pip install -r src/requirements.txt
 ### 需要申请的 API Key（均有免费额度）
 
 #### SiliconFlow（必须）
-> 用途：驱动 DeepSeek-V3 大模型 + BGE 向量化模型
+> 用途：驱动 DeepSeek-V4-Pro 大模型 + BGE 向量化模型
 
 1. 打开 https://siliconflow.cn → 注册账号
 2. 进入「API 密钥」→ 点击「新建 API 密钥」
@@ -202,7 +202,7 @@ docker-weaviate-1    Up
 1. 控制台左下角 → 「设置」→「模型供应商」
 2. 找到 **SiliconFlow** → 点击「设置」→ 填入 SiliconFlow API Key（`sk-xxxxxxx`）→ 保存
 3. 回到「模型供应商」页顶部 → 「系统模型设置」，选好三类默认模型：
-   - **系统推理模型**：`deepseek-ai/DeepSeek-V3`
+   - **系统推理模型**：`deepseek-ai/DeepSeek-V4-Pro`
    - **Embedding 模型**：`BAAI/bge-large-zh-v1.5`
    - **Rerank 模型**（可选）：`Pro/BAAI/bge-reranker-v2-m3`
 
@@ -432,7 +432,9 @@ DIFY_APP_KEY="<你的Service API密钥 app-xxxx>" \
   --output data/eval_results.json
 ```
 
-**基准结果（2026-07-22，DeepSeek-V3）：**
+**基准结果（2026-07-22）：**
+
+> 说明：下表为 2026-07-22 的历史评测数据，当时为对比提速临时切到 DeepSeek-V3 跑测；平台当前默认模型为 `deepseek-ai/DeepSeek-V4-Pro`，切换模型后建议重新跑一次评测更新本表。
 
 | 指标 | 结果 |
 |------|------|
@@ -538,7 +540,7 @@ docker compose restart nginx
 | 知识库 ID | 知识库页面 URL `/datasets/<这一段>/documents` |
 | 知识库 API Key | 知识库 →「API 访问」→ 创建密钥，形如 `dataset-xxxx` |
 | Service API Key | 应用 →「访问 API」→ 创建密钥，形如 `app-xxxx` |
-| LLM 模型 | `deepseek-ai/DeepSeek-V3`（via SiliconFlow）|
+| LLM 模型 | `deepseek-ai/DeepSeek-V4-Pro`（via SiliconFlow）|
 | Embedding 模型 | `BAAI/bge-large-zh-v1.5`（via SiliconFlow）|
 | Rerank 模型 | `Pro/BAAI/bge-reranker-v2-m3`（via SiliconFlow，可选）|
 | WebApp 对话地址 | 应用发布后的分享链接 `https://localhost/chat/<AppID>` |
