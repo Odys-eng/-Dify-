@@ -254,44 +254,59 @@ docker-weaviate-1    Up
 
 ### 4.4 创建知识库并上传文档
 
-1. 控制台顶部 → 「知识库」→ 「创建知识库」→ 建一个空知识库（可跳过上传文件，直接创建）
-2. 进入该知识库 → 「设置」/「API」页，记录两样东西：
-   - **知识库 API 密钥**：在「API 访问」页点「创建密钥」得到，形如 `dataset-xxxxxxxx`
-   - **知识库 ID（dataset-id）**：浏览器地址栏 `/datasets/<这一段就是ID>/documents` 中的那段
-3. 运行上传脚本，把本地文档批量灌入（把下面两个占位符换成你上一步记录的值）：
+> ⚠️ **关键：分段模式选「父子索引」+ 父块用「全文」**。本项目文档是结构化短文（每篇约 2KB，含核心知识/可能原因/检查步骤等小节）。若用「通用」分段或父块选「段落」，泛泛查询只会命中文档标题元数据、拿不到正文——这是本项目踩过的最大坑。
+
+1. 控制台顶部 → 「知识库」→ 「创建知识库」→ 建一个空知识库
+2. 进入知识库 → 「设置」，按下表配置后保存：
+
+   | 设置项 | 选择 |
+   |--------|------|
+   | 分段模式 | **Parent-Child（父子索引）** |
+   | └ 父块模式 | **全文（整篇文档作为父块）** ← 不要选「段落」 |
+   | 索引方式 | 高质量 |
+   | Embedding 模型 | **BAAI/bge-large-zh-v1.5**（中文模型，别用 en 英文版） |
+   | 检索设置 | 混合检索 + Rerank（Pro/BAAI/bge-reranker-v2-m3） |
+
+3. 记录两样东西备用：
+   - **知识库 API 密钥**：「API 访问」页点「创建密钥」，形如 `dataset-xxxxxxxx`
+   - **知识库 ID**：地址栏 `/datasets/<这段就是ID>/documents`
+4. **先生成唯一命名副本**（避免不同类别下同名 md 被 Dify 按文件名去重覆盖）：
 
 ```bash
 cd homework
-
-# Windows（PowerShell）
-$env:DIFY_KB_KEY="<你的知识库API密钥 dataset-xxxx>"
-python src/knowledge/repair_dataset.py `
-  --base-url https://localhost/v1 `
-  --dataset-id <你的知识库ID> `
-  --knowledge-root 制造业设备维修知识库 `
-  --data-root data
-
-# Mac/Linux
-DIFY_KB_KEY="<你的知识库API密钥 dataset-xxxx>" \
-  python src/knowledge/repair_dataset.py \
-  --base-url https://localhost/v1 \
-  --dataset-id <你的知识库ID> \
-  --knowledge-root 制造业设备维修知识库 \
-  --data-root data
+python scripts/make_unique_named_copy.py
+# 输出到 data/kb_upload_ready/，92 个文件加了「文件夹名__」前缀
 ```
 
-> 💡 脚本走 Nginx 的 `https://localhost/v1`（自签证书，脚本已默认跳过证书校验）。上传完成后，知识库页面应显示全部文档 **completed**（本项目参考数量约 102 个）。
+5. 上传。二选一：
+
+   **方式A：Web UI 手动上传（推荐，能直观选父块模式）**
+   知识库 →「添加文件」→ 进 `data/kb_upload_ready/` → 全选 92 个 →
+   分段模式选 **Parent-Child**、父块选 **全文** → 确认。再单独把 `data/pdfs/` 的 PDF 传进去。
+
+   **方式B：脚本上传（父子库专用，全文父块模式）**
+   ```bash
+   # Windows（PowerShell）
+   $env:DIFY_KB_KEY="<你的知识库API密钥 dataset-xxxx>"
+   python scripts/rebuild_parent_kb_fulldoc.py   # 脚本内 DS_ID 需改成你的知识库ID
+   ```
+
+> 💡 脚本走 Nginx 的 `https://localhost/v1`（自签证书，已默认跳过校验）。上传完知识库应显示全部文档 **completed**（本项目 92 个 md + 5 个 PDF = 97 个）。
 >
-> ⚠️ `repair_dataset.py` 会校验 `制造业设备维修知识库/` 下恰好有 **12 个分类目录**，并额外上传 `data/pdfs/` 里的两个 PDF 手册。若你 clone 得到的项目缺少 `data/pdfs/`（该目录默认不入库），请先把对应 PDF 放进去，或改用 `sync_knowledge_base.py`（见第 7 节）只上传你自己的文档。
+> ✅ **验证**：知识库「召回测试」输入「除尘常见问题」，top1 应命中 `12_除尘环保与公用工程__04_常见故障与可能原因.md`、且返回内容有 2000+ 字符（含完整正文，不只是标题）。
 
 ### 4.5 导入 Workflow（问答应用）
 
 1. 控制台顶部 → 「工作室」→ 右上角「创建应用」→「导入 DSL 文件」
-2. 选择项目中的 `src/workflow/chatflow-dsl.yml`
-3. 导入后打开 Workflow 编辑器，做两处替换：
-   - **关联知识库**：点「知识检索」节点 → 选中你在 4.4 创建的知识库
-   - **填 Tavily Key**：点 `tavily_search`（HTTP Request）节点 → 在 Body 里把字符串 `REPLACE_TAVILY_KEY` 替换为真实的 Tavily 密钥
+2. 选择 `src/workflow/chatflow-dsl.yml`
+3. 导入后打开 Workflow 编辑器，做三处配置：
+   - **关联知识库**：点「知识库检索」节点 → 选中你在 4.4 创建的父子索引库
+   - **启用 Score 阈值**：同一节点 → 打开「Score 阈值」开关 → 设 **0.4**
+     （低于 0.4 视为未命中 → 自动走 Tavily 联网兜底。**开关不打开阈值不生效**，是本项目第二个坑）
+   - **填 Tavily Key**：点 `tavily_search`（HTTP Request）节点 → Body 里把 `REPLACE_TAVILY_KEY` 替换为真实 Tavily 密钥
 4. 点击右上角「发布」
+
+> ✅ **验证分流**：问「除尘常见问题」应走知识库分支；问「汇川 MD520 变频器 E.OC1 故障排查」（库里没有的具体型号）应走 Tavily 联网分支。
 
 ---
 
@@ -402,6 +417,19 @@ DIFY_KB_KEY="<你的知识库API密钥>" \
 脚本会自动：跳过已存在文档 → 上传新文件 → 等待索引完成 → 报告结果。
 
 > 详见 [docs/KNOWLEDGE_BASE_GUIDE.md](docs/KNOWLEDGE_BASE_GUIDE.md) — 包含厂商手册下载地址和预处理方法。
+
+### 重建父子索引库（全文父块模式）
+
+若要重建父子索引库（清空旧 md、保留 PDF、全文父块模式重传）：
+
+```bash
+cd homework
+python scripts/make_unique_named_copy.py          # 1. 先生成唯一命名副本
+$env:DIFY_KB_KEY="<你的知识库API密钥>"              # 2. PowerShell 设 key
+python scripts/rebuild_parent_kb_fulldoc.py        # 3. 重建（脚本内 DS_ID 改成你的库ID）
+```
+
+> 脚本有库名核对保护，只操作名为「制造业设备维修-父子索引」的库，避免误删。
 
 ### 修复索引错误文档
 
@@ -515,9 +543,15 @@ homework/
 │   │   ├── sync_knowledge_base.py       # 新手册自动上传脚本 ← 常用
 │   │   ├── repair_dataset.py            # 修复索引错误脚本
 │   │   ├── eval_chatflow.py             # 20 题评测脚本
-│   │   └── upload_to_dify.py            # 单文件上传脚本
+│   │   ├── upload_to_dify.py            # 单文件上传脚本
+│   │   └── upload_to_both_kb.py         # 双库并发上传（通用库+父子库）
 │   └── scripts/
 │       └── backup.sh                    # 数据备份脚本 ← 定期运行
+│
+├── scripts/
+│   ├── add_keywords_to_kb.py            # 批量给文档元数据加关键词
+│   ├── make_unique_named_copy.py        # 生成唯一命名副本（防 Dify 同名去重）← 上传前必跑
+│   └── rebuild_parent_kb_fulldoc.py     # 全文父块模式重建父子库
 │
 ├── data/
 │   ├── eval_questions.csv               # 评测题目（20 题）
@@ -526,7 +560,7 @@ homework/
 │   ├── new-manuals/                     # 放新 PDF 手册的目录（上传前暂存）
 │   └── pdfs/                            # 已有设备手册 PDF（不入库）
 │
-├── 制造业设备维修知识库/                  # 12 类设备，约 93 个 MD 文件（+data 下补充文档共约 102 个）
+├── 制造业设备维修知识库/                  # 13 类设备，92 个 MD 文件（+ data/pdfs 5 个 PDF = 入库 97 个）
 │   ├── 00_通用安全与维修方法/
 │   ├── 01_机床与数控设备/
 │   ├── ... （02-11 各设备大类）
