@@ -68,14 +68,26 @@ workflow:
         attachment_image_file_size_limit: 2
   graph:
     edges:
-    - id: start-source-knowledge-target
+    - id: start-source-query-rewrite-target
       data:
         isInLoop: false
         sourceType: start
-        targetType: knowledge-retrieval
+        targetType: llm
         isInIteration: false
       type: custom
       source: start
+      target: query_rewrite
+      zIndex: 0
+      sourceHandle: source
+      targetHandle: target
+    - id: query-rewrite-knowledge-target
+      data:
+        isInLoop: false
+        sourceType: llm
+        targetType: knowledge-retrieval
+        isInIteration: false
+      type: custom
+      source: query_rewrite
       target: knowledge_retrieval
       zIndex: 0
       sourceHandle: source
@@ -171,30 +183,55 @@ workflow:
       positionAbsolute:
         x: 100
         y: 300
-    - id: knowledge_retrieval
+    - id: query_rewrite
       data:
-        desc: 检索预置设备手册知识库，score_threshold=0.5 自动过滤
-        type: knowledge-retrieval
-        title: 知识库检索
+        desc: 将泛泛问题改写成包含具体关键词的检索查询，提升召回精度
+        type: llm
+        model:
+          mode: chat
+          name: deepseek-ai/DeepSeek-V4-Pro
+          provider: langgenius/siliconflow/siliconflow
+          completion_params:
+            max_tokens: 200
+            temperature: 0.1
+        title: 查询改写
+        vision:
+          enabled: false
+        context:
+          enabled: false
         selected: false
-        dataset_ids:
-        - 62874d02-ed9d-4d31-b087-6b4ea50d0bc2
-        retrieval_mode: multiple
-        query_variable_selector:
-        - sys
-        - query
-        multiple_retrieval_config:
-          top_k: 3
-          reranking_mode: reranking_model
-          reranking_model:
-            model: Pro/BAAI/bge-reranker-v2-m3
-            provider: langgenius/siliconflow/siliconflow
-          score_threshold: 0.5
-          reranking_enable: true
-        query_attachment_selector: []
+        prompt_template:
+        - id: query-rewrite-system
+          role: system
+          text: '你是检索查询优化器。将用户的问题改写为更具体的检索关键词，保留设备类别、故障现象、操作动词等关键信息。
+
+
+            # 规则
+
+            1. 泛泛问题 → 具体故障词（例如：常见问题 → 压差高、排放异常、风量不足）
+
+            2. 保留设备型号、报警代码等专有名词
+
+            3. 只输出改写后的查询，不加解释
+
+
+            # 示例
+
+            输入：除尘和公用工程的常见问题
+
+            输出：除尘设备常见故障：压差高、排放升高、风量不足、灰斗堵塞的原因和处理
+
+
+            输入：CNC 加工中心换刀故障
+
+            输出：CNC 加工中心刀库换刀失败、刀臂卡滞、主轴松刀故障原因'
+        - id: query-rewrite-user
+          role: user
+          text: '{{#sys.query#}}'
+        structured_output_enabled: false
       type: custom
       width: 241
-      height: 133
+      height: 115
       zIndex: 0
       position:
         x: 400
@@ -202,6 +239,38 @@ workflow:
       selected: false
       positionAbsolute:
         x: 400
+        y: 300
+    - id: knowledge_retrieval
+      data:
+        desc: 检索预置设备手册知识库，top_k=8 多取片段，score_threshold=0.3 避免遗漏正文内容
+        type: knowledge-retrieval
+        title: 知识库检索
+        selected: false
+        dataset_ids:
+        - 62874d02-ed9d-4d31-b087-6b4ea50d0bc2
+        retrieval_mode: multiple
+        query_variable_selector:
+        - query_rewrite
+        - text
+        multiple_retrieval_config:
+          top_k: 8
+          reranking_mode: reranking_model
+          reranking_model:
+            model: Pro/BAAI/bge-reranker-v2-m3
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.3
+          reranking_enable: true
+        query_attachment_selector: []
+      type: custom
+      width: 241
+      height: 133
+      zIndex: 0
+      position:
+        x: 700
+        y: 300
+      selected: false
+      positionAbsolute:
+        x: 700
         y: 300
     - id: if_else
       data:
@@ -225,11 +294,11 @@ workflow:
       height: 167
       zIndex: 0
       position:
-        x: 700
+        x: 1000
         y: 300
       selected: false
       positionAbsolute:
-        x: 700
+        x: 1000
         y: 300
     - id: tavily_search
       data:
@@ -266,11 +335,11 @@ workflow:
       height: 164
       zIndex: 0
       position:
-        x: 1000
+        x: 1300
         y: 450
       selected: false
       positionAbsolute:
-        x: 1000
+        x: 1300
         y: 450
     - id: llm_generate
       data:
@@ -386,11 +455,11 @@ workflow:
       height: 115
       zIndex: 0
       position:
-        x: 1300
+        x: 1600
         y: 300
       selected: false
       positionAbsolute:
-        x: 1300
+        x: 1600
         y: 300
     - id: answer
       data:
@@ -405,11 +474,11 @@ workflow:
       height: 130
       zIndex: 0
       position:
-        x: 1600
+        x: 1900
         y: 300
       selected: true
       positionAbsolute:
-        x: 1600
+        x: 1900
         y: 300
     - id: llm_kb
       data:
@@ -525,11 +594,11 @@ workflow:
       height: 115
       zIndex: 0
       position:
-        x: 1300
+        x: 1600
         y: 80
       selected: false
       positionAbsolute:
-        x: 1300
+        x: 1600
         y: 80
     - id: answer_kb
       data:
@@ -544,11 +613,11 @@ workflow:
       height: 130
       zIndex: 0
       position:
-        x: 1600
+        x: 1900
         y: 80
       selected: true
       positionAbsolute:
-        x: 1600
+        x: 1900
         y: 80
     viewport:
       x: -837
