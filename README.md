@@ -431,7 +431,9 @@ python scripts/rebuild_parent_kb_fulldoc.py        # 3. 重建（脚本内 DS_ID
 
 > 脚本有库名核对保护，只操作名为「制造业设备维修-父子索引」的库，避免误删。
 
-### 修复索引错误文档
+### 修复索引错误文档（通用库，旧方案）
+
+> ℹ️ `repair_dataset.py` 是早期通用分段库的修复工具，会把 md 以裸文件名上传。**若用父子索引库（推荐），请改用上面的 `rebuild_parent_kb_fulldoc.py`**（唯一命名 + 全文父块），否则同名文档会被 Dify 去重覆盖。
 
 ```bash
 DIFY_KB_KEY="<你的知识库API密钥>" \
