@@ -173,12 +173,12 @@ workflow:
         y: 300
     - id: knowledge_retrieval
       data:
-        desc: 检索预置设备手册知识库，top_k=8 多取片段，score_threshold=0.3 避免遗漏正文内容
+        desc: 检索父子索引知识库，top_k=8，score_threshold=0.4 且启用阈值过滤（低于0.4视为未命中→走联网）
         type: knowledge-retrieval
         title: 知识库检索
         selected: false
         dataset_ids:
-        - 62874d02-ed9d-4d31-b087-6b4ea50d0bc2
+        - cdfa2492-f2ab-4eaf-a3e2-b159365f030d
         retrieval_mode: multiple
         query_variable_selector:
         - sys
@@ -189,7 +189,8 @@ workflow:
           reranking_model:
             model: Pro/BAAI/bge-reranker-v2-m3
             provider: langgenius/siliconflow/siliconflow
-          score_threshold: 0.3
+          score_threshold: 0.4
+          score_threshold_enabled: true
           reranking_enable: true
         query_attachment_selector: []
       type: custom

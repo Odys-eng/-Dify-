@@ -66,3 +66,5 @@ DifiProject.rar
 
 # --- 备份目录 ---
 backups/
+chatflow-dsl.local.yml
+data/kb_upload_ready/
