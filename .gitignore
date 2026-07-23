@@ -68,3 +68,6 @@ DifiProject.rar
 backups/
 chatflow-dsl.local.yml
 data/kb_upload_ready/
+
+# 个人报告(含截图，不入库)
+*.docx
