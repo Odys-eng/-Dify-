@@ -84,7 +84,7 @@
 
 | 配置项 | 填写值 | 说明 |
 |--------|--------|------|
-| API Key | 粘贴 `.env` 中的 `SILICONFLOW_API_KEY` | 注册地址 https://siliconflow.cn |
+| API Key | 粘贴 `.env` 中的 `DEEPSEEK_API_KEY` | 注册地址 https://siliconflow.cn |
 | API Base URL | `https://api.siliconflow.cn/v1` | OpenAI 兼容端点 |
 | 模型类型 | 选择 **「文本生成」** | — |
 | 模型名称 | `deepseek-ai/DeepSeek-V4-Pro` | ⚠️ 不要选已停用的 deepseek-chat |
