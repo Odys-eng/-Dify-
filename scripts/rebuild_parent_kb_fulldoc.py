@@ -105,6 +105,11 @@ def fulldoc_rule():
                     {"id": "remove_extra_spaces", "enabled": True},
                     {"id": "remove_urls_emails", "enabled": False},
                 ],
+                # 父级切分：API 强制要求此字段；max_tokens 设大保证整篇=一个父块
+                "segmentation": {
+                    "separator": "\n\n\n\n",
+                    "max_tokens": 4000,
+                },
                 # 全文父块：整篇文档作为一个父块
                 "parent_mode": "full-doc",
                 # 子块分隔：按行切句
